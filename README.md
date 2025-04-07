@@ -12,5 +12,5 @@
 
 # Rules
 - Make branches on top of the `dev` branch
-- Merge on dev when the model is "finished"
-- Never EVER merge on main except if it was approved by tests made on GPU
+- Merge on `dev` when the model is "finished"
+- **Never EVER merge on main** except if it was approved by tests made on GPU
