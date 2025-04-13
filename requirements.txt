@@ -1,2 +1,11 @@
-monai>=1.4.0
-nibabel
+matplotlib==3.10.1
+mlflow==2.21.3
+mlflow_skinny==2.21.3
+monai==1.4.1rc1+38.g4986d7ff
+nibabel==5.3.2
+numpy==2.2.4
+scikit_learn==1.6.1
+scipy==1.15.2
+skimage==0.0
+torch==2.6.0
+tqdm==4.67.1
