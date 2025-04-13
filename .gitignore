@@ -5,10 +5,11 @@ data/DatasetChallenge
 __pycache__/
 *.py[cod]
 *$py.class
-
+*.DS_Store
+*.tar
 # C extensions
 *.so
-
+data/DatasetChallenge
 # Distribution / packaging
 .Python
 build/
