@@ -13,6 +13,7 @@ from monai.transforms import (
     RandCropByPosNegLabeld,
     RandRotate90d,
     RandFlipd,
+    Resized,
     ToTensord,
     AsDiscreted,
 )
@@ -128,6 +129,7 @@ else:
 # Define MONAI transformations for training
 train_transforms = Compose([
     LoadImaged(keys=["image", "label"]),  # Load NIfTI files
+    Resized(keys=["image", "label"], spatial_size=(512, 512, 128)),
     EnsureChannelFirstd(keys=["image", "label"]),  # Add channel dimension
     ScaleIntensityd(keys=["image"]),  # Scale image intensities to [0, 1]
     ToTensord(keys=["image", "label"]),  # Convert to PyTorch tensors
@@ -135,10 +137,9 @@ train_transforms = Compose([
 
 val_transforms = Compose([
     LoadImaged(keys=["image", "label"]),
+    Resized(keys=["image", "label"], spatial_size=(512, 512, 128)),
     EnsureChannelFirstd(keys=["image", "label"]),
-    # RemapLabelsD(keys=["label"], max_classes=3),  # Apply same remapping to validation data
     ScaleIntensityd(keys=["image"]),
-    # CropForegroundd(keys=["image", "label"], source_key="image"),
     ToTensord(keys=["image", "label"]),
 ])
 
@@ -153,7 +154,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
 model = SwinUNETR(
-    img_size=(512, 512, 32), # input image size
+    img_size=(512, 512, 128), # input image size
     spatial_dims=3, # 3 dimensions  
     in_channels=1,
     out_channels=3, # background, tumor and metastasis
@@ -162,6 +163,7 @@ model = SwinUNETR(
     drop_rate = 0.01,
     attn_drop_rate = 0.01
 ).to(device)
+model = torch.nn.DataParallel(model)
 
 # Defining Loss & Optimizer
 loss_function = DiceFocalLoss(to_onehot_y=True, softmax=True)
