@@ -2,11 +2,12 @@
 #SBATCH --job-name=test
 #SBATCH --output=out.log
 #SBATCH --partition=ird_gpu
-#SBATCH --gres=gpu:a100:2
-#SBATCH --cpus-per-task=1
+#SBATCH --gres=gpu:a100:1
+#SBATCH --cpus-per-task=2
 #SBATCH --mem-per-cpu=250G
+#SBATCH --time=06:00:00
 
-DATASETS="MSKCC"
+DATASETS="SAMPLE"
 
 # Model type: 'pod_om', 'abdominal_lesions', or 'lymph_nodes'
 MODEL_TYPE="pod_om"
@@ -14,7 +15,7 @@ MODEL_TYPE="pod_om"
 # Validation fold:
 # - Use 0-4 for 5-fold cross validation (80% training, 20% validation)
 # - Use 5 or above for training on 100% of the data (no validation)
-VALIDATION_FOLD=4
+VALIDATION_FOLD=1
 
 # Path to save logs
 LOG_DIR="./logs"

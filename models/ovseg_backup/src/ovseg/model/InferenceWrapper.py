@@ -226,7 +226,11 @@ def evaluate_segmentation_model(im,
     # store for later
     orig_shape = im.shape[-3:]
 
-    im_list = preprocess(im, spacing, model_params['preprocessing'], not fast)
+    path_to_preprocess_params = os.path.join('/home/user-data_challenge-33/data/preprocessed/YES/preprocessed/preprocessing_parameters.pkl')
+
+    preprocess_params = load_pkl(path_to_preprocess_params)
+
+    im_list = preprocess(im, spacing, preprocess_params, not fast)
     
     # dimensions of target tensor
     nz = np.sum([im.shape[1] for im in im_list])
@@ -313,7 +317,7 @@ def evaluate_segmentation_model(im,
     
     # now convert labels back to their orig. classes
     pred_lb = torch.zeros_like(pred)
-    for i, lb in enumerate(model_params['preprocessing']['lb_classes']):
+    for i, lb in enumerate(preprocess_params['lb_classes']):
         # this should be the fastest way on the GPU to get the job done
         pred_lb = pred_lb + lb * (pred == i+1).type(torch.float)
     

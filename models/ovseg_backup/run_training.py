@@ -78,3 +78,4 @@ model.save_model_parameters()
 model.training.train()
 if vf < model_params["data"]["n_folds"]:
     model.eval_validation_set()
+
