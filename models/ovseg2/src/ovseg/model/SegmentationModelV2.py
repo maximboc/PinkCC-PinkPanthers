@@ -6,8 +6,15 @@ from ovseg.utils.torch_np_utils import maybe_add_channel_dim
 from ovseg.utils.dict_equal import dict_equal, print_dict_diff
 from os.path import join
 import numpy as np
+import torch
+import torch.nn as nn
+from torch.nn.parallel import DataParallel, DistributedDataParallel
 
 class SegmentationModelV2(SegmentationModel):
+    def __init__(self, val_fold, data_name, model_name, model_parameters=None, preprocessed_name=None, network_name='network', is_inference_only = False, fmt_write='{:.4f}', model_parameters_name='model_parameters', plot_n_random_slices=1, dont_store_data_in_ram=False, use_multi_gpu=False, distributed=False):
+        super().__init__(val_fold, data_name, model_name, model_parameters, preprocessed_name, network_name, is_inference_only, fmt_write, model_parameters_name, plot_n_random_slices, dont_store_data_in_ram)
+        if use_multi_gpu:
+            self.enable_multi_gpu(distributed=distributed)
     
     def initialise_preprocessing(self):
         if 'preprocessing' not in self.model_parameters:
@@ -23,7 +30,6 @@ class SegmentationModelV2(SegmentationModel):
                 prep_params = load_pkl(join(self.preprocessed_path,
                                             'preprocessing_parameters.pkl'))
                 self.model_parameters['preprocessing'] = prep_params
-                
                 
         params = self.model_parameters['preprocessing'].copy()
     
@@ -107,7 +113,7 @@ class SegmentationModelV2(SegmentationModel):
                 pred = maybe_add_channel_dim(data_tpl['prev_pred'])
                 if pred.max() > 1:
                     raise NotImplementedError('Didn\'t implement the casacde for multiclass'
-                                              'prev stages. Add one hot encoding.')
+                                            'prev stages. Add one hot encoding.')
                 im = np.concatenate([im, pred])
             
             if self.preprocessing.has_ps_mask:
@@ -115,8 +121,7 @@ class SegmentationModelV2(SegmentationModel):
             else:
                 mask = None
             
-            
-        # now the importat part: the sliding window evaluation (or derivatives of it)
+        # Call the prediction method that handles multi-GPU
         pred = self.prediction(im)
         data_tpl[self.pred_key] = pred
 
@@ -125,3 +130,53 @@ class SegmentationModelV2(SegmentationModel):
             self.postprocessing.postprocess_data_tpl(data_tpl, self.pred_key, mask)
 
         return data_tpl[self.pred_key]
+    
+    def enable_multi_gpu(self, distributed=False):
+        """
+        Enable multi-GPU support for the model.
+        
+        Args:
+            distributed: If True, use DistributedDataParallel (recommended for multi-node),
+                        otherwise use DataParallel (simpler but less efficient)
+        """
+        if torch.cuda.device_count() > 1:
+            print(f"Using {torch.cuda.device_count()} GPUs!")
+            if distributed:
+                # For distributed training (multi-node)
+                self.network = DistributedDataParallel(self.network)
+            else:
+                # For single-node multi-GPU
+                self.network = DataParallel(self.network)
+        else:
+            print("Only one GPU available or no GPU found.")
+    
+    def prediction(self, im):
+        """
+        Perform prediction with the network, handling multi-GPU if enabled.
+        
+        Args:
+            im: Input image tensor/array
+            
+        Returns:
+            Prediction output
+        """
+        # Convert numpy array to torch tensor if needed
+        if isinstance(im, np.ndarray):
+            im = torch.from_numpy(im).float()
+        
+        # Make sure input is on the same device as model
+        device = next(self.network.parameters()).device
+        im = im.to(device)
+        
+        # Add batch dimension if needed
+        if len(im.shape) == 3:
+            im = im.unsqueeze(0)
+        
+        with torch.no_grad():
+            output = self.network(im)
+        
+        # Convert back to numpy for further processing
+        if isinstance(output, torch.Tensor):
+            output = output.cpu().numpy()
+        
+        return output

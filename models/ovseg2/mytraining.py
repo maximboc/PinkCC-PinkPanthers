@@ -162,7 +162,8 @@ model = SegmentationModelV2(val_fold=val_fold,
                             model_name=model_name,
                     
                             preprocessed_name=preprocessed_name,
-                            model_parameters=model_params)
+                            model_parameters=model_params,
+                            use_multi_gpu=True)
 
 
 # execute the trainig, simple as that!
