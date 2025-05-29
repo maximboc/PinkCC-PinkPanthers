@@ -18,8 +18,8 @@ echo "Running on: $SLURM_NODELIST"
 
 # Preprocess the data
 echo "Started prepo"
-python mypreprocess.py 
+python3 mypreprocess.py 
 
 echo "Started training"
 # Run training
-python mytraining.py
+python3 mytraining.py

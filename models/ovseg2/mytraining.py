@@ -81,7 +81,7 @@ model_params["data"] = {
     "ds_params": {},
     "trn_dl_params": {
         "patch_size": [32, 216, 216],
-        "batch_size": 4,
+        "batch_size": 8,
         "num_workers": 5,
         "pin_memory": True,
         "epoch_len": 250,
@@ -156,16 +156,27 @@ model_params['training']['num_epochs'] = 150
 model_params['preprocessed_path'] = "/home/user-data_challenge-33/data/preprocessed/SAMPLE/test_preprocessing"
 
 print(model_params)
-
+import torch.distributed as dist
+import os 
+# For DistributedDataParallel initialization (if you want to use it)
+if torch.cuda.device_count() > 1:
+    # Initialize the process group
+    os.environ['MASTER_ADDR'] = 'localhost'
+    os.environ['MASTER_PORT'] = '12355'
+    os.environ['RANK'] = '0'
+    os.environ['WORLD_SIZE'] = '1'
+    dist.init_process_group(backend='nccl')
 
 model = SegmentationModelV2(val_fold=val_fold,
                             data_name=data_name,
                             model_name=model_name,
                             preprocessed_name=preprocessed_name,
                             model_parameters=model_params,
-                            use_multi_gpu=False)  # Set to False initially
+                            use_multi_gpu=False,
+                            distributed=True)
 
 # After the model is fully initialized, enable multi-GPU
+"""
 if torch.cuda.is_available() and torch.cuda.device_count() > 1:
     print(f"Enabling multi-GPU support for {torch.cuda.device_count()} GPUs")
     model.network = torch.nn.DataParallel(model.network)
@@ -174,7 +185,7 @@ if torch.cuda.is_available() and torch.cuda.device_count() > 1:
     # Verify the wrapper
     print(f"Network type: {type(model.network)}")
     print(f"Available GPUs: {list(range(torch.cuda.device_count()))}")
-
+"""
 # Make sure model is on GPU
 model.network.cuda()
 
@@ -188,6 +199,11 @@ print(f"Current device: {torch.cuda.current_device()}")
 print(f"Network is on device: {next(model.network.parameters()).device}")
 print(f"Network type: {type(model.network)}")
 print("========================")
+# Add this to get more detailed parallelization info
+if hasattr(model.network, 'device_ids'):
+    print(f"Parallel device IDs: {model.network.device_ids}")
+if hasattr(model.network, 'module'):
+    print(f"Underlying module type: {type(model.network.module)}")
 
 # execute the trainig, simple as that!
 # It will check for previous checkpoints and load them

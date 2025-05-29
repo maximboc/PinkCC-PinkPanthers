@@ -304,6 +304,12 @@ class SegmentationTraining(NetworkTraining):
         # check if we want to stop the training after this epoch
         if self.epochs_done in self.stop_after_epochs:
             self.stop_training = True
+    def on_epoch_start(self):
+        # Set epoch for distributed sampler to ensure proper shuffling
+        if hasattr(self, 'trn_dl') and hasattr(self.trn_dl, 'sampler') and hasattr(self.trn_dl.sampler, 'set_epoch'):
+            self.trn_dl.sampler.set_epoch(self.epochs_done)
+        # Call parent implementation
+        super().on_epoch_start()
 
 
 class resize(nn.Module):

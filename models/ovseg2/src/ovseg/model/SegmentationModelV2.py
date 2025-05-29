@@ -143,7 +143,7 @@ class SegmentationModelV2(SegmentationModel):
             print(f"Using {torch.cuda.device_count()} GPUs!")
             if distributed:
                 # For distributed training (multi-node)
-                self.network = DistributedDataParallel(self.network)
+                self.network = DistributedDataParallel(self.network, device_ids[0,1])
             else:
                 # For single-node multi-GPU
                 self.network = DataParallel(self.network)
