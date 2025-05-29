@@ -1,0 +1,1743 @@
+2025-05-29 15:20:40: No previous checkpoint found, start from scrtach.
+2025-05-29 15:20:40: resize on the fly was disabled. Instead all resized volumes will be saved at /root/data/preprocessed/phase2/preprocessed in the following folders:
+2025-05-29 15:20:40: ['/root/data/preprocessed/phase2/preprocessed/images_32_432_432->20_256_256', '/root/data/preprocessed/phase2/preprocessed/images_32_432_432->22_304_304', '/root/data/preprocessed/phase2/preprocessed/images_32_432_432->30_384_384', '/root/data/preprocessed/phase2/preprocessed/labels_32_432_432->20_256_256', '/root/data/preprocessed/phase2/preprocessed/labels_32_432_432->22_304_304', '/root/data/preprocessed/phase2/preprocessed/labels_32_432_432->30_384_384']
+2025-05-29 15:20:40: Checking and converting now
+2025-05-29 15:20:40: Done!
+
+2025-05-29 15:20:40: 
+Progressive Training: Stage 0, size [20, 256, 256]
+
+
+2025-05-29 15:20:45: Start training.
+
+
+2025-05-29 15:20:45: Training parameters:
+
+2025-05-29 15:20:45: model_path: /root/data/trained_models/phase2/preprocessed/jsboige/fold_1
+2025-05-29 15:20:45: num_epochs: 150
+2025-05-29 15:20:45: opt_name: SGD
+2025-05-29 15:20:45: opt_params: {'momentum': 0.99, 'weight_decay': 3e-05, 'nesterov': True, 'lr': 0.02}
+2025-05-29 15:20:45: lr_params: {'n_warmup_epochs': 50, 'lr_max': 0.02}
+2025-05-29 15:20:45: nu_ema_trn: 0.99
+2025-05-29 15:20:45: nu_ema_val: ERROR, item not found.
+2025-05-29 15:20:45: fp32: False
+2025-05-29 15:20:45: network: UNetResEncoder(
+  (blocks_down): ModuleList(
+    (0): ConvNormNonlinBlock(
+      (conv1): Conv3d(1, 32, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
+      (conv2): Conv3d(32, 32, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
+      (norm1): InstanceNorm3d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+      (norm2): InstanceNorm3d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+      (nonlin1): LeakyReLU(negative_slope=0.01, inplace=True)
+      (nonlin2): LeakyReLU(negative_slope=0.01, inplace=True)
+    )
+    (1): stackedResBlocks(
+      (res_blocks): Sequential(
+        (0): ResBlock(
+          (conv1): Conv3d(32, 64, kernel_size=(1, 3, 3), stride=(1, 2, 2), padding=(0, 1, 1), bias=False)
+          (conv2): Conv3d(64, 64, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
+          (norm1): InstanceNorm3d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (norm2): InstanceNorm3d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (nonlin1): LeakyReLU(negative_slope=0.01, inplace=True)
+          (nonlin2): LeakyReLU(negative_slope=0.01, inplace=True)
+          (skip): Sequential(
+            (0): AvgPool3d(kernel_size=[1, 2, 2], stride=[1, 2, 2], padding=0)
+            (1): Conv3d(32, 64, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+          )
+          (stochdepth): StochDepth()
+        )
+        (1): ResBlock(
+          (conv1): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+          (conv2): Conv3d(64, 64, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
+          (norm1): InstanceNorm3d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (norm2): InstanceNorm3d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (nonlin1): LeakyReLU(negative_slope=0.01, inplace=True)
+          (nonlin2): LeakyReLU(negative_slope=0.01, inplace=True)
+          (skip): Identity()
+          (stochdepth): StochDepth()
+        )
+      )
+    )
+    (2): stackedResBlocks(
+      (res_blocks): Sequential(
+        (0): ResBlock(
+          (conv1): Conv3d(64, 128, kernel_size=(1, 3, 3), stride=(1, 2, 2), padding=(0, 1, 1), bias=False)
+          (conv2): Conv3d(128, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+          (norm1): InstanceNorm3d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (norm2): InstanceNorm3d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (nonlin1): LeakyReLU(negative_slope=0.01, inplace=True)
+          (nonlin2): LeakyReLU(negative_slope=0.01, inplace=True)
+          (skip): Sequential(
+            (0): AvgPool3d(kernel_size=[1, 2, 2], stride=[1, 2, 2], padding=0)
+            (1): Conv3d(64, 128, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+          )
+          (stochdepth): StochDepth()
+        )
+        (1): ResBlock(
+          (conv1): Conv3d(128, 128, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
+          (conv2): Conv3d(128, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+          (norm1): InstanceNorm3d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (norm2): InstanceNorm3d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (nonlin1): LeakyReLU(negative_slope=0.01, inplace=True)
+          (nonlin2): LeakyReLU(negative_slope=0.01, inplace=True)
+          (skip): Identity()
+          (stochdepth): StochDepth()
+        )
+        (2): ResBlock(
+          (conv1): Conv3d(128, 128, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
+          (conv2): Conv3d(128, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+          (norm1): InstanceNorm3d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (norm2): InstanceNorm3d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (nonlin1): LeakyReLU(negative_slope=0.01, inplace=True)
+          (nonlin2): LeakyReLU(negative_slope=0.01, inplace=True)
+          (skip): Identity()
+          (stochdepth): StochDepth()
+        )
+        (3): ResBlock(
+          (conv1): Conv3d(128, 128, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
+          (conv2): Conv3d(128, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+          (norm1): InstanceNorm3d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (norm2): InstanceNorm3d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (nonlin1): LeakyReLU(negative_slope=0.01, inplace=True)
+          (nonlin2): LeakyReLU(negative_slope=0.01, inplace=True)
+          (skip): Identity()
+          (stochdepth): StochDepth()
+        )
+        (4): ResBlock(
+          (conv1): Conv3d(128, 128, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
+          (conv2): Conv3d(128, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+          (norm1): InstanceNorm3d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (norm2): InstanceNorm3d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (nonlin1): LeakyReLU(negative_slope=0.01, inplace=True)
+          (nonlin2): LeakyReLU(negative_slope=0.01, inplace=True)
+          (skip): Identity()
+          (stochdepth): StochDepth()
+        )
+        (5): ResBlock(
+          (conv1): Conv3d(128, 128, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
+          (conv2): Conv3d(128, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+          (norm1): InstanceNorm3d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (norm2): InstanceNorm3d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (nonlin1): LeakyReLU(negative_slope=0.01, inplace=True)
+          (nonlin2): LeakyReLU(negative_slope=0.01, inplace=True)
+          (skip): Identity()
+          (stochdepth): StochDepth()
+        )
+      )
+    )
+    (3): stackedResBlocks(
+      (res_blocks): Sequential(
+        (0): ResBlock(
+          (conv1): Conv3d(128, 256, kernel_size=(3, 3, 3), stride=(2, 2, 2), padding=(1, 1, 1), bias=False)
+          (conv2): Conv3d(256, 256, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+          (norm1): InstanceNorm3d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (norm2): InstanceNorm3d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (nonlin1): LeakyReLU(negative_slope=0.01, inplace=True)
+          (nonlin2): LeakyReLU(negative_slope=0.01, inplace=True)
+          (skip): Sequential(
+            (0): AvgPool3d(kernel_size=2, stride=2, padding=0)
+            (1): Conv3d(128, 256, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+          )
+          (stochdepth): StochDepth()
+        )
+        (1): ResBlock(
+          (conv1): Conv3d(256, 256, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+          (conv2): Conv3d(256, 256, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+          (norm1): InstanceNorm3d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (norm2): InstanceNorm3d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (nonlin1): LeakyReLU(negative_slope=0.01, inplace=True)
+          (nonlin2): LeakyReLU(negative_slope=0.01, inplace=True)
+          (skip): Identity()
+          (stochdepth): StochDepth()
+        )
+        (2): ResBlock(
+          (conv1): Conv3d(256, 256, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+          (conv2): Conv3d(256, 256, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+          (norm1): InstanceNorm3d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (norm2): InstanceNorm3d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (nonlin1): LeakyReLU(negative_slope=0.01, inplace=True)
+          (nonlin2): LeakyReLU(negative_slope=0.01, inplace=True)
+          (skip): Identity()
+          (stochdepth): StochDepth()
+        )
+      )
+    )
+  )
+  (blocks_up): ModuleList(
+    (0): ConvNormNonlinBlock(
+      (conv1): Conv3d(64, 32, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
+      (conv2): Conv3d(32, 32, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
+      (norm1): InstanceNorm3d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+      (norm2): InstanceNorm3d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+      (nonlin1): LeakyReLU(negative_slope=0.01, inplace=True)
+      (nonlin2): LeakyReLU(negative_slope=0.01, inplace=True)
+    )
+    (1): ConvNormNonlinBlock(
+      (conv1): Conv3d(128, 64, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
+      (conv2): Conv3d(64, 64, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
+      (norm1): InstanceNorm3d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+      (norm2): InstanceNorm3d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+      (nonlin1): LeakyReLU(negative_slope=0.01, inplace=True)
+      (nonlin2): LeakyReLU(negative_slope=0.01, inplace=True)
+    )
+    (2): ConvNormNonlinBlock(
+      (conv1): Conv3d(256, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+      (conv2): Conv3d(128, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+      (norm1): InstanceNorm3d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+      (norm2): InstanceNorm3d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+      (nonlin1): LeakyReLU(negative_slope=0.01, inplace=True)
+      (nonlin2): LeakyReLU(negative_slope=0.01, inplace=True)
+    )
+  )
+  (upsamplings): ModuleList(
+    (0): UpConv(
+      (conv): ConvTranspose3d(64, 32, kernel_size=(1, 2, 2), stride=(1, 2, 2), bias=False)
+    )
+    (1): UpConv(
+      (conv): ConvTranspose3d(128, 64, kernel_size=(1, 2, 2), stride=(1, 2, 2), bias=False)
+    )
+    (2): UpConv(
+      (conv): ConvTranspose3d(256, 128, kernel_size=(2, 2, 2), stride=(2, 2, 2), bias=False)
+    )
+  )
+  (all_logits): ModuleList(
+    (0): Logits(
+      (logits): Conv3d(32, 3, kernel_size=(1, 1, 1), stride=(1, 1, 1), bias=False)
+      (dropout): Dropout3d(p=0.0, inplace=True)
+    )
+    (1): Logits(
+      (logits): Conv3d(64, 3, kernel_size=(1, 1, 1), stride=(1, 1, 1), bias=False)
+      (dropout): Dropout3d(p=0.0, inplace=True)
+    )
+    (2): Logits(
+      (logits): Conv3d(128, 3, kernel_size=(1, 1, 1), stride=(1, 1, 1), bias=False)
+      (dropout): Dropout3d(p=0.0, inplace=True)
+    )
+    (3): Logits(
+      (logits): Conv3d(256, 3, kernel_size=(1, 1, 1), stride=(1, 1, 1), bias=False)
+      (dropout): Dropout3d(p=0.0, inplace=True)
+    )
+  )
+)
+
+
+2025-05-29 15:20:45: Epoch:0
+2025-05-29 15:21:37: Epoch training 0 done after 52.51 seconds
+2025-05-29 15:21:37: Average epoch training time: 52.51 seconds
+2025-05-29 15:21:37: Traning loss: 1.3595e+00
+2025-05-29 15:21:37: Learning rate now: 4.0000e-04
+2025-05-29 15:21:37: The total epoch time was 52.67 seconds
+2025-05-29 15:21:37: Training attributes saved
+2025-05-29 15:21:37: network parameters and opt parameters saved.
+
+
+2025-05-29 15:21:37: Epoch:1
+2025-05-29 15:22:27: Epoch training 1 done after 49.58 seconds
+2025-05-29 15:22:27: Average epoch training time: 51.04 seconds
+2025-05-29 15:22:27: Traning loss: 1.0564e+00
+2025-05-29 15:22:27: Learning rate now: 8.0000e-04
+2025-05-29 15:22:27: The total epoch time was 49.72 seconds
+2025-05-29 15:22:27: Training attributes saved
+2025-05-29 15:22:27: network parameters and opt parameters saved.
+
+
+2025-05-29 15:22:27: Epoch:2
+2025-05-29 15:23:17: Epoch training 2 done after 49.87 seconds
+2025-05-29 15:23:17: Average epoch training time: 50.65 seconds
+2025-05-29 15:23:17: Traning loss: 1.0179e+00
+2025-05-29 15:23:17: Learning rate now: 1.2000e-03
+2025-05-29 15:23:17: The total epoch time was 50.11 seconds
+2025-05-29 15:23:17: Training attributes saved
+2025-05-29 15:23:18: network parameters and opt parameters saved.
+
+
+2025-05-29 15:23:18: Epoch:3
+2025-05-29 15:24:08: Epoch training 3 done after 49.91 seconds
+2025-05-29 15:24:08: Average epoch training time: 50.47 seconds
+2025-05-29 15:24:08: Traning loss: 9.9762e-01
+2025-05-29 15:24:08: Learning rate now: 1.6000e-03
+2025-05-29 15:24:08: The total epoch time was 50.15 seconds
+2025-05-29 15:24:08: Training attributes saved
+2025-05-29 15:24:08: network parameters and opt parameters saved.
+
+
+2025-05-29 15:24:08: Epoch:4
+2025-05-29 15:24:58: Epoch training 4 done after 50.09 seconds
+2025-05-29 15:24:58: Average epoch training time: 50.39 seconds
+2025-05-29 15:24:58: Traning loss: 9.7150e-01
+2025-05-29 15:24:58: Learning rate now: 2.0000e-03
+2025-05-29 15:24:58: The total epoch time was 50.33 seconds
+2025-05-29 15:24:58: Training attributes saved
+2025-05-29 15:24:58: network parameters and opt parameters saved.
+
+
+2025-05-29 15:24:58: Epoch:5
+2025-05-29 15:25:49: Epoch training 5 done after 50.09 seconds
+2025-05-29 15:25:49: Average epoch training time: 50.34 seconds
+2025-05-29 15:25:49: Traning loss: 9.3815e-01
+2025-05-29 15:25:49: Learning rate now: 2.4000e-03
+2025-05-29 15:25:49: The total epoch time was 50.31 seconds
+2025-05-29 15:25:49: Training attributes saved
+2025-05-29 15:25:49: network parameters and opt parameters saved.
+
+
+2025-05-29 15:25:49: Epoch:6
+2025-05-29 15:26:39: Epoch training 6 done after 50.13 seconds
+2025-05-29 15:26:39: Average epoch training time: 50.31 seconds
+2025-05-29 15:26:39: Traning loss: 9.1738e-01
+2025-05-29 15:26:39: Learning rate now: 2.8000e-03
+2025-05-29 15:26:39: The total epoch time was 50.36 seconds
+2025-05-29 15:26:39: Training attributes saved
+2025-05-29 15:26:39: network parameters and opt parameters saved.
+
+
+2025-05-29 15:26:39: Epoch:7
+2025-05-29 15:27:30: Epoch training 7 done after 50.11 seconds
+2025-05-29 15:27:30: Average epoch training time: 50.29 seconds
+2025-05-29 15:27:30: Traning loss: 8.7561e-01
+2025-05-29 15:27:30: Learning rate now: 3.2000e-03
+2025-05-29 15:27:30: The total epoch time was 50.33 seconds
+2025-05-29 15:27:30: Training attributes saved
+2025-05-29 15:27:30: network parameters and opt parameters saved.
+
+
+2025-05-29 15:27:30: Epoch:8
+2025-05-29 15:28:20: Epoch training 8 done after 50.10 seconds
+2025-05-29 15:28:20: Average epoch training time: 50.27 seconds
+2025-05-29 15:28:20: Traning loss: 8.6622e-01
+2025-05-29 15:28:20: Learning rate now: 3.6000e-03
+2025-05-29 15:28:20: The total epoch time was 50.33 seconds
+2025-05-29 15:28:20: Training attributes saved
+2025-05-29 15:28:20: network parameters and opt parameters saved.
+
+
+2025-05-29 15:28:20: Epoch:9
+2025-05-29 15:29:11: Epoch training 9 done after 50.20 seconds
+2025-05-29 15:29:11: Average epoch training time: 50.26 seconds
+2025-05-29 15:29:11: Traning loss: 8.5932e-01
+2025-05-29 15:29:11: Learning rate now: 4.0000e-03
+2025-05-29 15:29:11: The total epoch time was 50.43 seconds
+2025-05-29 15:29:11: Training attributes saved
+2025-05-29 15:29:11: network parameters and opt parameters saved.
+
+
+2025-05-29 15:29:11: Epoch:10
+2025-05-29 15:30:01: Epoch training 10 done after 50.17 seconds
+2025-05-29 15:30:01: Average epoch training time: 50.25 seconds
+2025-05-29 15:30:01: Traning loss: 8.6106e-01
+2025-05-29 15:30:02: Learning rate now: 4.4000e-03
+2025-05-29 15:30:02: The total epoch time was 50.55 seconds
+2025-05-29 15:30:02: Training attributes saved
+2025-05-29 15:30:02: network parameters and opt parameters saved.
+
+
+2025-05-29 15:30:02: Epoch:11
+2025-05-29 15:30:52: Epoch training 11 done after 50.10 seconds
+2025-05-29 15:30:52: Average epoch training time: 50.24 seconds
+2025-05-29 15:30:52: Traning loss: 8.3722e-01
+2025-05-29 15:30:52: Learning rate now: 4.8000e-03
+2025-05-29 15:30:52: The total epoch time was 50.33 seconds
+2025-05-29 15:30:52: Training attributes saved
+2025-05-29 15:30:52: network parameters and opt parameters saved.
+
+
+2025-05-29 15:30:52: Epoch:12
+2025-05-29 15:31:42: Epoch training 12 done after 50.17 seconds
+2025-05-29 15:31:42: Average epoch training time: 50.23 seconds
+2025-05-29 15:31:42: Traning loss: 8.4265e-01
+2025-05-29 15:31:43: Learning rate now: 5.2000e-03
+2025-05-29 15:31:43: The total epoch time was 50.40 seconds
+2025-05-29 15:31:43: Training attributes saved
+2025-05-29 15:31:43: network parameters and opt parameters saved.
+
+
+2025-05-29 15:31:43: Epoch:13
+2025-05-29 15:32:33: Epoch training 13 done after 50.20 seconds
+2025-05-29 15:32:33: Average epoch training time: 50.23 seconds
+2025-05-29 15:32:33: Traning loss: 8.3974e-01
+2025-05-29 15:32:33: Learning rate now: 5.6000e-03
+2025-05-29 15:32:33: The total epoch time was 50.44 seconds
+2025-05-29 15:32:33: Training attributes saved
+2025-05-29 15:32:33: network parameters and opt parameters saved.
+
+
+2025-05-29 15:32:33: Epoch:14
+2025-05-29 15:33:24: Epoch training 14 done after 50.16 seconds
+2025-05-29 15:33:24: Average epoch training time: 50.23 seconds
+2025-05-29 15:33:24: Traning loss: 8.3162e-01
+2025-05-29 15:33:24: Learning rate now: 6.0000e-03
+2025-05-29 15:33:24: The total epoch time was 50.40 seconds
+2025-05-29 15:33:24: Training attributes saved
+2025-05-29 15:33:24: network parameters and opt parameters saved.
+
+
+2025-05-29 15:33:24: Epoch:15
+2025-05-29 15:34:14: Epoch training 15 done after 50.15 seconds
+2025-05-29 15:34:14: Average epoch training time: 50.22 seconds
+2025-05-29 15:34:14: Traning loss: 8.1462e-01
+2025-05-29 15:34:14: Learning rate now: 6.4000e-03
+2025-05-29 15:34:14: The total epoch time was 50.38 seconds
+2025-05-29 15:34:14: Training attributes saved
+2025-05-29 15:34:15: network parameters and opt parameters saved.
+
+
+2025-05-29 15:34:15: Epoch:16
+2025-05-29 15:35:05: Epoch training 16 done after 50.22 seconds
+2025-05-29 15:35:05: Average epoch training time: 50.22 seconds
+2025-05-29 15:35:05: Traning loss: 8.0743e-01
+2025-05-29 15:35:05: Learning rate now: 6.8000e-03
+2025-05-29 15:35:05: The total epoch time was 50.46 seconds
+2025-05-29 15:35:05: Training attributes saved
+2025-05-29 15:35:05: network parameters and opt parameters saved.
+
+
+2025-05-29 15:35:05: Epoch:17
+2025-05-29 15:35:55: Epoch training 17 done after 50.19 seconds
+2025-05-29 15:35:55: Average epoch training time: 50.22 seconds
+2025-05-29 15:35:55: Traning loss: 8.1505e-01
+2025-05-29 15:35:56: Learning rate now: 7.2000e-03
+2025-05-29 15:35:56: The total epoch time was 50.43 seconds
+2025-05-29 15:35:56: Training attributes saved
+2025-05-29 15:35:56: network parameters and opt parameters saved.
+
+
+2025-05-29 15:35:56: Epoch:18
+2025-05-29 15:36:46: Epoch training 18 done after 50.22 seconds
+2025-05-29 15:36:46: Average epoch training time: 50.22 seconds
+2025-05-29 15:36:46: Traning loss: 8.0905e-01
+2025-05-29 15:36:46: Learning rate now: 7.6000e-03
+2025-05-29 15:36:46: The total epoch time was 50.46 seconds
+2025-05-29 15:36:46: Training attributes saved
+2025-05-29 15:36:46: network parameters and opt parameters saved.
+
+
+2025-05-29 15:36:46: Epoch:19
+2025-05-29 15:37:37: Epoch training 19 done after 50.18 seconds
+2025-05-29 15:37:37: Average epoch training time: 50.22 seconds
+2025-05-29 15:37:37: Traning loss: 8.0567e-01
+2025-05-29 15:37:37: Learning rate now: 8.0000e-03
+2025-05-29 15:37:37: The total epoch time was 50.40 seconds
+2025-05-29 15:37:37: Training attributes saved
+2025-05-29 15:37:37: network parameters and opt parameters saved.
+
+
+2025-05-29 15:37:37: Epoch:20
+2025-05-29 15:38:27: Epoch training 20 done after 50.27 seconds
+2025-05-29 15:38:27: Average epoch training time: 50.22 seconds
+2025-05-29 15:38:27: Traning loss: 7.9804e-01
+2025-05-29 15:38:28: Learning rate now: 8.4000e-03
+2025-05-29 15:38:28: The total epoch time was 50.66 seconds
+2025-05-29 15:38:28: Training attributes saved
+2025-05-29 15:38:28: network parameters and opt parameters saved.
+
+
+2025-05-29 15:38:28: Epoch:21
+2025-05-29 15:39:18: Epoch training 21 done after 50.21 seconds
+2025-05-29 15:39:18: Average epoch training time: 50.22 seconds
+2025-05-29 15:39:18: Traning loss: 7.8517e-01
+2025-05-29 15:39:18: Learning rate now: 8.8000e-03
+2025-05-29 15:39:18: The total epoch time was 50.43 seconds
+2025-05-29 15:39:18: Training attributes saved
+2025-05-29 15:39:18: network parameters and opt parameters saved.
+
+
+2025-05-29 15:39:18: Epoch:22
+2025-05-29 15:40:09: Epoch training 22 done after 50.25 seconds
+2025-05-29 15:40:09: Average epoch training time: 50.22 seconds
+2025-05-29 15:40:09: Traning loss: 7.9300e-01
+2025-05-29 15:40:09: Learning rate now: 9.2000e-03
+2025-05-29 15:40:09: The total epoch time was 50.48 seconds
+2025-05-29 15:40:09: Training attributes saved
+2025-05-29 15:40:09: network parameters and opt parameters saved.
+
+
+2025-05-29 15:40:09: Epoch:23
+2025-05-29 15:40:59: Epoch training 23 done after 50.25 seconds
+2025-05-29 15:40:59: Average epoch training time: 50.22 seconds
+2025-05-29 15:40:59: Traning loss: 7.9723e-01
+2025-05-29 15:41:00: Learning rate now: 9.6000e-03
+2025-05-29 15:41:00: The total epoch time was 50.47 seconds
+2025-05-29 15:41:00: Training attributes saved
+2025-05-29 15:41:00: network parameters and opt parameters saved.
+
+
+2025-05-29 15:41:00: Epoch:24
+2025-05-29 15:41:50: Epoch training 24 done after 50.26 seconds
+2025-05-29 15:41:50: Average epoch training time: 50.22 seconds
+2025-05-29 15:41:50: Traning loss: 7.9862e-01
+2025-05-29 15:41:50: Learning rate now: 1.0000e-02
+2025-05-29 15:41:50: The total epoch time was 50.49 seconds
+2025-05-29 15:41:50: Training attributes saved
+2025-05-29 15:41:50: network parameters and opt parameters saved.
+
+
+2025-05-29 15:41:50: Epoch:25
+2025-05-29 15:42:41: Epoch training 25 done after 50.24 seconds
+2025-05-29 15:42:41: Average epoch training time: 50.22 seconds
+2025-05-29 15:42:41: Traning loss: 7.9606e-01
+2025-05-29 15:42:41: Learning rate now: 1.0400e-02
+2025-05-29 15:42:41: The total epoch time was 50.48 seconds
+2025-05-29 15:42:41: Training attributes saved
+2025-05-29 15:42:41: network parameters and opt parameters saved.
+
+
+2025-05-29 15:42:41: Epoch:26
+2025-05-29 15:43:31: Epoch training 26 done after 50.24 seconds
+2025-05-29 15:43:31: Average epoch training time: 50.22 seconds
+2025-05-29 15:43:31: Traning loss: 7.9038e-01
+2025-05-29 15:43:31: Learning rate now: 1.0800e-02
+2025-05-29 15:43:31: The total epoch time was 50.47 seconds
+2025-05-29 15:43:31: Training attributes saved
+2025-05-29 15:43:32: network parameters and opt parameters saved.
+
+
+2025-05-29 15:43:32: Epoch:27
+2025-05-29 15:44:22: Epoch training 27 done after 50.27 seconds
+2025-05-29 15:44:22: Average epoch training time: 50.23 seconds
+2025-05-29 15:44:22: Traning loss: 7.8450e-01
+2025-05-29 15:44:22: Learning rate now: 1.1200e-02
+2025-05-29 15:44:22: The total epoch time was 50.50 seconds
+2025-05-29 15:44:22: Training attributes saved
+2025-05-29 15:44:22: network parameters and opt parameters saved.
+
+
+2025-05-29 15:44:22: Epoch:28
+2025-05-29 15:45:13: Epoch training 28 done after 50.28 seconds
+2025-05-29 15:45:13: Average epoch training time: 50.23 seconds
+2025-05-29 15:45:13: Traning loss: 7.6715e-01
+2025-05-29 15:45:13: Learning rate now: 1.1600e-02
+2025-05-29 15:45:13: The total epoch time was 50.51 seconds
+2025-05-29 15:45:13: Training attributes saved
+2025-05-29 15:45:13: network parameters and opt parameters saved.
+
+
+2025-05-29 15:45:13: Epoch:29
+2025-05-29 15:46:03: Epoch training 29 done after 50.25 seconds
+2025-05-29 15:46:03: Average epoch training time: 50.23 seconds
+2025-05-29 15:46:03: Traning loss: 7.5390e-01
+2025-05-29 15:46:03: Learning rate now: 1.2000e-02
+2025-05-29 15:46:03: The total epoch time was 50.47 seconds
+2025-05-29 15:46:03: Training attributes saved
+2025-05-29 15:46:04: network parameters and opt parameters saved.
+
+
+2025-05-29 15:46:04: Epoch:30
+2025-05-29 15:46:54: Epoch training 30 done after 50.15 seconds
+2025-05-29 15:46:54: Average epoch training time: 50.23 seconds
+2025-05-29 15:46:54: Traning loss: 7.5917e-01
+2025-05-29 15:46:54: Learning rate now: 1.2400e-02
+2025-05-29 15:46:54: The total epoch time was 50.37 seconds
+2025-05-29 15:46:54: Training attributes saved
+2025-05-29 15:46:54: network parameters and opt parameters saved.
+
+
+2025-05-29 15:46:54: Epoch:31
+2025-05-29 15:47:44: Epoch training 31 done after 50.27 seconds
+2025-05-29 15:47:44: Average epoch training time: 50.23 seconds
+2025-05-29 15:47:44: Traning loss: 7.6696e-01
+2025-05-29 15:47:45: Learning rate now: 1.2800e-02
+2025-05-29 15:47:45: The total epoch time was 50.50 seconds
+2025-05-29 15:47:45: Training attributes saved
+2025-05-29 15:47:45: network parameters and opt parameters saved.
+
+
+2025-05-29 15:47:45: Epoch:32
+2025-05-29 15:48:35: Epoch training 32 done after 50.21 seconds
+2025-05-29 15:48:35: Average epoch training time: 50.23 seconds
+2025-05-29 15:48:35: Traning loss: 7.6733e-01
+2025-05-29 15:48:35: Learning rate now: 1.3200e-02
+2025-05-29 15:48:35: The total epoch time was 50.44 seconds
+2025-05-29 15:48:35: Training attributes saved
+2025-05-29 15:48:35: network parameters and opt parameters saved.
+
+
+2025-05-29 15:48:35: Epoch:33
+2025-05-29 15:49:26: Epoch training 33 done after 50.20 seconds
+2025-05-29 15:49:26: Average epoch training time: 50.23 seconds
+2025-05-29 15:49:26: Traning loss: 7.4113e-01
+2025-05-29 15:49:26: Learning rate now: 1.3600e-02
+2025-05-29 15:49:26: The total epoch time was 50.43 seconds
+2025-05-29 15:49:26: Training attributes saved
+2025-05-29 15:49:26: network parameters and opt parameters saved.
+
+
+2025-05-29 15:49:26: Epoch:34
+2025-05-29 15:50:16: Epoch training 34 done after 50.15 seconds
+2025-05-29 15:50:16: Average epoch training time: 50.22 seconds
+2025-05-29 15:50:16: Traning loss: 7.5532e-01
+2025-05-29 15:50:16: Learning rate now: 1.4000e-02
+2025-05-29 15:50:16: The total epoch time was 50.39 seconds
+2025-05-29 15:50:16: Training attributes saved
+2025-05-29 15:50:17: network parameters and opt parameters saved.
+
+
+2025-05-29 15:50:17: Epoch:35
+2025-05-29 15:51:07: Epoch training 35 done after 50.17 seconds
+2025-05-29 15:51:07: Average epoch training time: 50.22 seconds
+2025-05-29 15:51:07: Traning loss: 7.6279e-01
+2025-05-29 15:51:07: Learning rate now: 1.4400e-02
+2025-05-29 15:51:07: The total epoch time was 50.40 seconds
+2025-05-29 15:51:07: Training attributes saved
+2025-05-29 15:51:07: network parameters and opt parameters saved.
+
+
+2025-05-29 15:51:07: Epoch:36
+2025-05-29 15:51:57: Epoch training 36 done after 50.21 seconds
+2025-05-29 15:51:57: Average epoch training time: 50.22 seconds
+2025-05-29 15:51:57: Traning loss: 7.6477e-01
+2025-05-29 15:51:58: Learning rate now: 1.4800e-02
+2025-05-29 15:51:58: The total epoch time was 50.45 seconds
+2025-05-29 15:51:58: 
+Progressive Training: Stage 1, size [22, 304, 304]
+
+
+2025-05-29 15:52:04: Training attributes saved
+2025-05-29 15:52:05: network parameters and opt parameters saved.
+
+
+2025-05-29 15:52:05: Epoch:37
+2025-05-29 15:52:55: Epoch training 37 done after 50.18 seconds
+2025-05-29 15:52:55: Average epoch training time: 50.22 seconds
+2025-05-29 15:52:55: Traning loss: 8.0047e-01
+2025-05-29 15:52:55: Learning rate now: 1.5200e-02
+2025-05-29 15:52:55: The total epoch time was 50.42 seconds
+2025-05-29 15:52:55: Training attributes saved
+2025-05-29 15:52:55: network parameters and opt parameters saved.
+
+
+2025-05-29 15:52:55: Epoch:38
+2025-05-29 15:53:45: Epoch training 38 done after 50.23 seconds
+2025-05-29 15:53:45: Average epoch training time: 50.22 seconds
+2025-05-29 15:53:45: Traning loss: 7.9702e-01
+2025-05-29 15:53:46: Learning rate now: 1.5600e-02
+2025-05-29 15:53:46: The total epoch time was 50.48 seconds
+2025-05-29 15:53:46: Training attributes saved
+2025-05-29 15:53:46: network parameters and opt parameters saved.
+
+
+2025-05-29 15:53:46: Epoch:39
+2025-05-29 15:54:36: Epoch training 39 done after 50.28 seconds
+2025-05-29 15:54:36: Average epoch training time: 50.22 seconds
+2025-05-29 15:54:36: Traning loss: 8.2216e-01
+2025-05-29 15:54:36: Learning rate now: 1.6000e-02
+2025-05-29 15:54:36: The total epoch time was 50.53 seconds
+2025-05-29 15:54:36: Training attributes saved
+2025-05-29 15:54:36: network parameters and opt parameters saved.
+
+
+2025-05-29 15:54:36: Epoch:40
+2025-05-29 15:55:27: Epoch training 40 done after 50.29 seconds
+2025-05-29 15:55:27: Average epoch training time: 50.22 seconds
+2025-05-29 15:55:27: Traning loss: 7.8947e-01
+2025-05-29 15:55:27: Learning rate now: 1.6400e-02
+2025-05-29 15:55:27: The total epoch time was 50.54 seconds
+2025-05-29 15:55:27: Training attributes saved
+2025-05-29 15:55:27: network parameters and opt parameters saved.
+
+
+2025-05-29 15:55:27: Epoch:41
+2025-05-29 15:56:17: Epoch training 41 done after 50.22 seconds
+2025-05-29 15:56:17: Average epoch training time: 50.22 seconds
+2025-05-29 15:56:17: Traning loss: 7.9304e-01
+2025-05-29 15:56:18: Learning rate now: 1.6800e-02
+2025-05-29 15:56:18: The total epoch time was 50.46 seconds
+2025-05-29 15:56:18: Training attributes saved
+2025-05-29 15:56:18: network parameters and opt parameters saved.
+
+
+2025-05-29 15:56:18: Epoch:42
+2025-05-29 15:57:08: Epoch training 42 done after 50.24 seconds
+2025-05-29 15:57:08: Average epoch training time: 50.22 seconds
+2025-05-29 15:57:08: Traning loss: 7.8013e-01
+2025-05-29 15:57:08: Learning rate now: 1.7200e-02
+2025-05-29 15:57:08: The total epoch time was 50.49 seconds
+2025-05-29 15:57:08: Training attributes saved
+2025-05-29 15:57:08: network parameters and opt parameters saved.
+
+
+2025-05-29 15:57:08: Epoch:43
+2025-05-29 15:57:59: Epoch training 43 done after 50.15 seconds
+2025-05-29 15:57:59: Average epoch training time: 50.22 seconds
+2025-05-29 15:57:59: Traning loss: 7.8734e-01
+2025-05-29 15:57:59: Learning rate now: 1.7600e-02
+2025-05-29 15:57:59: The total epoch time was 50.39 seconds
+2025-05-29 15:57:59: Training attributes saved
+2025-05-29 15:57:59: network parameters and opt parameters saved.
+
+
+2025-05-29 15:57:59: Epoch:44
+2025-05-29 15:58:49: Epoch training 44 done after 50.21 seconds
+2025-05-29 15:58:49: Average epoch training time: 50.22 seconds
+2025-05-29 15:58:49: Traning loss: 8.0023e-01
+2025-05-29 15:58:50: Learning rate now: 1.8000e-02
+2025-05-29 15:58:50: The total epoch time was 50.59 seconds
+2025-05-29 15:58:50: Training attributes saved
+2025-05-29 15:58:50: network parameters and opt parameters saved.
+
+
+2025-05-29 15:58:50: Epoch:45
+2025-05-29 15:59:40: Epoch training 45 done after 50.22 seconds
+2025-05-29 15:59:40: Average epoch training time: 50.22 seconds
+2025-05-29 15:59:40: Traning loss: 7.7877e-01
+2025-05-29 15:59:40: Learning rate now: 1.8400e-02
+2025-05-29 15:59:40: The total epoch time was 50.45 seconds
+2025-05-29 15:59:40: Training attributes saved
+2025-05-29 15:59:40: network parameters and opt parameters saved.
+
+
+2025-05-29 15:59:40: Epoch:46
+2025-05-29 16:00:31: Epoch training 46 done after 50.26 seconds
+2025-05-29 16:00:31: Average epoch training time: 50.22 seconds
+2025-05-29 16:00:31: Traning loss: 7.9067e-01
+2025-05-29 16:00:31: Learning rate now: 1.8800e-02
+2025-05-29 16:00:31: The total epoch time was 50.49 seconds
+2025-05-29 16:00:31: Training attributes saved
+2025-05-29 16:00:31: network parameters and opt parameters saved.
+
+
+2025-05-29 16:00:31: Epoch:47
+2025-05-29 16:01:21: Epoch training 47 done after 50.23 seconds
+2025-05-29 16:01:21: Average epoch training time: 50.22 seconds
+2025-05-29 16:01:21: Traning loss: 7.8444e-01
+2025-05-29 16:01:22: Learning rate now: 1.9200e-02
+2025-05-29 16:01:22: The total epoch time was 50.46 seconds
+2025-05-29 16:01:22: Training attributes saved
+2025-05-29 16:01:22: network parameters and opt parameters saved.
+
+
+2025-05-29 16:01:22: Epoch:48
+2025-05-29 16:02:12: Epoch training 48 done after 50.27 seconds
+2025-05-29 16:02:12: Average epoch training time: 50.22 seconds
+2025-05-29 16:02:12: Traning loss: 7.8511e-01
+2025-05-29 16:02:12: Learning rate now: 1.9600e-02
+2025-05-29 16:02:12: The total epoch time was 50.49 seconds
+2025-05-29 16:02:12: Training attributes saved
+2025-05-29 16:02:12: network parameters and opt parameters saved.
+
+
+2025-05-29 16:02:12: Epoch:49
+2025-05-29 16:03:03: Epoch training 49 done after 50.23 seconds
+2025-05-29 16:03:03: Average epoch training time: 50.22 seconds
+2025-05-29 16:03:03: Traning loss: 7.8053e-01
+2025-05-29 16:03:03: Learning rate now: 2.0000e-02
+2025-05-29 16:03:03: The total epoch time was 50.46 seconds
+2025-05-29 16:03:03: Training attributes saved
+2025-05-29 16:03:03: network parameters and opt parameters saved.
+
+
+2025-05-29 16:03:03: Epoch:50
+2025-05-29 16:03:53: Epoch training 50 done after 50.19 seconds
+2025-05-29 16:03:53: Average epoch training time: 50.22 seconds
+2025-05-29 16:03:53: Traning loss: 7.8809e-01
+2025-05-29 16:03:53: Learning rate now: 1.9998e-02
+2025-05-29 16:03:53: The total epoch time was 50.42 seconds
+2025-05-29 16:03:53: Training attributes saved
+2025-05-29 16:03:54: network parameters and opt parameters saved.
+
+
+2025-05-29 16:03:54: Epoch:51
+2025-05-29 16:04:44: Epoch training 51 done after 50.21 seconds
+2025-05-29 16:04:44: Average epoch training time: 50.22 seconds
+2025-05-29 16:04:44: Traning loss: 7.8242e-01
+2025-05-29 16:04:44: Learning rate now: 1.9990e-02
+2025-05-29 16:04:44: The total epoch time was 50.45 seconds
+2025-05-29 16:04:44: Training attributes saved
+2025-05-29 16:04:44: network parameters and opt parameters saved.
+
+
+2025-05-29 16:04:44: Epoch:52
+2025-05-29 16:05:34: Epoch training 52 done after 50.21 seconds
+2025-05-29 16:05:34: Average epoch training time: 50.22 seconds
+2025-05-29 16:05:34: Traning loss: 7.7122e-01
+2025-05-29 16:05:35: Learning rate now: 1.9978e-02
+2025-05-29 16:05:35: The total epoch time was 50.45 seconds
+2025-05-29 16:05:35: Training attributes saved
+2025-05-29 16:05:35: network parameters and opt parameters saved.
+
+
+2025-05-29 16:05:35: Epoch:53
+2025-05-29 16:06:25: Epoch training 53 done after 50.29 seconds
+2025-05-29 16:06:25: Average epoch training time: 50.23 seconds
+2025-05-29 16:06:25: Traning loss: 7.6322e-01
+2025-05-29 16:06:25: Learning rate now: 1.9961e-02
+2025-05-29 16:06:25: The total epoch time was 50.52 seconds
+2025-05-29 16:06:25: Training attributes saved
+2025-05-29 16:06:26: network parameters and opt parameters saved.
+
+
+2025-05-29 16:06:26: Epoch:54
+2025-05-29 16:07:16: Epoch training 54 done after 50.23 seconds
+2025-05-29 16:07:16: Average epoch training time: 50.23 seconds
+2025-05-29 16:07:16: Traning loss: 7.7548e-01
+2025-05-29 16:07:16: Learning rate now: 1.9938e-02
+2025-05-29 16:07:16: The total epoch time was 50.46 seconds
+2025-05-29 16:07:16: Training attributes saved
+2025-05-29 16:07:16: network parameters and opt parameters saved.
+
+
+2025-05-29 16:07:16: Epoch:55
+2025-05-29 16:08:07: Epoch training 55 done after 50.34 seconds
+2025-05-29 16:08:07: Average epoch training time: 50.23 seconds
+2025-05-29 16:08:07: Traning loss: 7.5460e-01
+2025-05-29 16:08:07: Learning rate now: 1.9911e-02
+2025-05-29 16:08:07: The total epoch time was 50.73 seconds
+2025-05-29 16:08:07: Training attributes saved
+2025-05-29 16:08:07: network parameters and opt parameters saved.
+
+
+2025-05-29 16:08:07: Epoch:56
+2025-05-29 16:08:57: Epoch training 56 done after 50.30 seconds
+2025-05-29 16:08:57: Average epoch training time: 50.23 seconds
+2025-05-29 16:08:57: Traning loss: 7.7008e-01
+2025-05-29 16:08:58: Learning rate now: 1.9879e-02
+2025-05-29 16:08:58: The total epoch time was 50.53 seconds
+2025-05-29 16:08:58: Training attributes saved
+2025-05-29 16:08:58: network parameters and opt parameters saved.
+
+
+2025-05-29 16:08:58: Epoch:57
+2025-05-29 16:09:48: Epoch training 57 done after 50.31 seconds
+2025-05-29 16:09:48: Average epoch training time: 50.23 seconds
+2025-05-29 16:09:48: Traning loss: 7.7126e-01
+2025-05-29 16:09:48: Learning rate now: 1.9842e-02
+2025-05-29 16:09:48: The total epoch time was 50.55 seconds
+2025-05-29 16:09:48: Training attributes saved
+2025-05-29 16:09:48: network parameters and opt parameters saved.
+
+
+2025-05-29 16:09:48: Epoch:58
+2025-05-29 16:10:39: Epoch training 58 done after 50.30 seconds
+2025-05-29 16:10:39: Average epoch training time: 50.23 seconds
+2025-05-29 16:10:39: Traning loss: 7.4427e-01
+2025-05-29 16:10:39: Learning rate now: 1.9800e-02
+2025-05-29 16:10:39: The total epoch time was 50.53 seconds
+2025-05-29 16:10:39: Training attributes saved
+2025-05-29 16:10:39: network parameters and opt parameters saved.
+
+
+2025-05-29 16:10:39: Epoch:59
+2025-05-29 16:11:29: Epoch training 59 done after 50.30 seconds
+2025-05-29 16:11:29: Average epoch training time: 50.23 seconds
+2025-05-29 16:11:29: Traning loss: 7.5346e-01
+2025-05-29 16:11:30: Learning rate now: 1.9754e-02
+2025-05-29 16:11:30: The total epoch time was 50.53 seconds
+2025-05-29 16:11:30: Training attributes saved
+2025-05-29 16:11:30: network parameters and opt parameters saved.
+
+
+2025-05-29 16:11:30: Epoch:60
+2025-05-29 16:12:20: Epoch training 60 done after 50.28 seconds
+2025-05-29 16:12:20: Average epoch training time: 50.23 seconds
+2025-05-29 16:12:20: Traning loss: 7.5042e-01
+2025-05-29 16:12:20: Learning rate now: 1.9702e-02
+2025-05-29 16:12:20: The total epoch time was 50.51 seconds
+2025-05-29 16:12:20: Training attributes saved
+2025-05-29 16:12:21: network parameters and opt parameters saved.
+
+
+2025-05-29 16:12:21: Epoch:61
+2025-05-29 16:13:11: Epoch training 61 done after 50.25 seconds
+2025-05-29 16:13:11: Average epoch training time: 50.23 seconds
+2025-05-29 16:13:11: Traning loss: 7.5940e-01
+2025-05-29 16:13:11: Learning rate now: 1.9646e-02
+2025-05-29 16:13:11: The total epoch time was 50.48 seconds
+2025-05-29 16:13:11: Training attributes saved
+2025-05-29 16:13:11: network parameters and opt parameters saved.
+
+
+2025-05-29 16:13:11: Epoch:62
+2025-05-29 16:14:02: Epoch training 62 done after 50.30 seconds
+2025-05-29 16:14:02: Average epoch training time: 50.23 seconds
+2025-05-29 16:14:02: Traning loss: 7.4360e-01
+2025-05-29 16:14:02: Learning rate now: 1.9584e-02
+2025-05-29 16:14:02: The total epoch time was 50.53 seconds
+2025-05-29 16:14:02: Training attributes saved
+2025-05-29 16:14:02: network parameters and opt parameters saved.
+
+
+2025-05-29 16:14:02: Epoch:63
+2025-05-29 16:14:52: Epoch training 63 done after 50.35 seconds
+2025-05-29 16:14:52: Average epoch training time: 50.24 seconds
+2025-05-29 16:14:52: Traning loss: 7.5422e-01
+2025-05-29 16:14:53: Learning rate now: 1.9518e-02
+2025-05-29 16:14:53: The total epoch time was 50.59 seconds
+2025-05-29 16:14:53: Training attributes saved
+2025-05-29 16:14:53: network parameters and opt parameters saved.
+
+
+2025-05-29 16:14:53: Epoch:64
+2025-05-29 16:15:43: Epoch training 64 done after 50.30 seconds
+2025-05-29 16:15:43: Average epoch training time: 50.24 seconds
+2025-05-29 16:15:43: Traning loss: 7.6155e-01
+2025-05-29 16:15:43: Learning rate now: 1.9447e-02
+2025-05-29 16:15:43: The total epoch time was 50.54 seconds
+2025-05-29 16:15:43: Training attributes saved
+2025-05-29 16:15:43: network parameters and opt parameters saved.
+
+
+2025-05-29 16:15:43: Epoch:65
+2025-05-29 16:16:34: Epoch training 65 done after 50.26 seconds
+2025-05-29 16:16:34: Average epoch training time: 50.24 seconds
+2025-05-29 16:16:34: Traning loss: 7.3581e-01
+2025-05-29 16:16:34: Learning rate now: 1.9372e-02
+2025-05-29 16:16:34: The total epoch time was 50.49 seconds
+2025-05-29 16:16:34: Training attributes saved
+2025-05-29 16:16:34: network parameters and opt parameters saved.
+
+
+2025-05-29 16:16:34: Epoch:66
+2025-05-29 16:17:24: Epoch training 66 done after 50.23 seconds
+2025-05-29 16:17:24: Average epoch training time: 50.24 seconds
+2025-05-29 16:17:24: Traning loss: 7.5338e-01
+2025-05-29 16:17:25: Learning rate now: 1.9291e-02
+2025-05-29 16:17:25: The total epoch time was 50.47 seconds
+2025-05-29 16:17:25: Training attributes saved
+2025-05-29 16:17:25: network parameters and opt parameters saved.
+
+
+2025-05-29 16:17:25: Epoch:67
+2025-05-29 16:18:15: Epoch training 67 done after 50.28 seconds
+2025-05-29 16:18:15: Average epoch training time: 50.24 seconds
+2025-05-29 16:18:15: Traning loss: 7.6338e-01
+2025-05-29 16:18:15: Learning rate now: 1.9206e-02
+2025-05-29 16:18:15: The total epoch time was 50.52 seconds
+2025-05-29 16:18:15: Training attributes saved
+2025-05-29 16:18:15: network parameters and opt parameters saved.
+
+
+2025-05-29 16:18:15: Epoch:68
+2025-05-29 16:19:06: Epoch training 68 done after 50.24 seconds
+2025-05-29 16:19:06: Average epoch training time: 50.24 seconds
+2025-05-29 16:19:06: Traning loss: 7.5106e-01
+2025-05-29 16:19:06: Learning rate now: 1.9116e-02
+2025-05-29 16:19:06: The total epoch time was 50.63 seconds
+2025-05-29 16:19:06: Training attributes saved
+2025-05-29 16:19:06: network parameters and opt parameters saved.
+
+
+2025-05-29 16:19:06: Epoch:69
+2025-05-29 16:19:57: Epoch training 69 done after 50.30 seconds
+2025-05-29 16:19:57: Average epoch training time: 50.24 seconds
+2025-05-29 16:19:57: Traning loss: 7.3879e-01
+2025-05-29 16:19:57: Learning rate now: 1.9021e-02
+2025-05-29 16:19:57: The total epoch time was 50.54 seconds
+2025-05-29 16:19:57: Training attributes saved
+2025-05-29 16:19:57: network parameters and opt parameters saved.
+
+
+2025-05-29 16:19:57: Epoch:70
+2025-05-29 16:20:47: Epoch training 70 done after 50.30 seconds
+2025-05-29 16:20:47: Average epoch training time: 50.24 seconds
+2025-05-29 16:20:47: Traning loss: 7.4645e-01
+2025-05-29 16:20:47: Learning rate now: 1.8922e-02
+2025-05-29 16:20:47: The total epoch time was 50.54 seconds
+2025-05-29 16:20:47: Training attributes saved
+2025-05-29 16:20:48: network parameters and opt parameters saved.
+
+
+2025-05-29 16:20:48: Epoch:71
+2025-05-29 16:21:38: Epoch training 71 done after 50.20 seconds
+2025-05-29 16:21:38: Average epoch training time: 50.24 seconds
+2025-05-29 16:21:38: Traning loss: 7.3888e-01
+2025-05-29 16:21:38: Learning rate now: 1.8818e-02
+2025-05-29 16:21:38: The total epoch time was 50.43 seconds
+2025-05-29 16:21:38: Training attributes saved
+2025-05-29 16:21:38: network parameters and opt parameters saved.
+
+
+2025-05-29 16:21:38: Epoch:72
+2025-05-29 16:22:29: Epoch training 72 done after 50.32 seconds
+2025-05-29 16:22:29: Average epoch training time: 50.24 seconds
+2025-05-29 16:22:29: Traning loss: 7.3523e-01
+2025-05-29 16:22:29: Learning rate now: 1.8709e-02
+2025-05-29 16:22:29: The total epoch time was 50.55 seconds
+2025-05-29 16:22:29: Training attributes saved
+2025-05-29 16:22:29: network parameters and opt parameters saved.
+
+
+2025-05-29 16:22:29: Epoch:73
+2025-05-29 16:23:19: Epoch training 73 done after 50.28 seconds
+2025-05-29 16:23:19: Average epoch training time: 50.24 seconds
+2025-05-29 16:23:19: Traning loss: 7.4588e-01
+2025-05-29 16:23:19: Learning rate now: 1.8596e-02
+2025-05-29 16:23:19: The total epoch time was 50.51 seconds
+2025-05-29 16:23:19: 
+Progressive Training: Stage 2, size [30, 384, 384]
+
+
+2025-05-29 16:23:33: Training attributes saved
+2025-05-29 16:23:33: network parameters and opt parameters saved.
+
+
+2025-05-29 16:23:33: Epoch:74
+2025-05-29 16:24:23: Epoch training 74 done after 50.01 seconds
+2025-05-29 16:24:23: Average epoch training time: 50.24 seconds
+2025-05-29 16:24:23: Traning loss: 8.3226e-01
+2025-05-29 16:24:23: Learning rate now: 1.8478e-02
+2025-05-29 16:24:23: The total epoch time was 50.24 seconds
+2025-05-29 16:24:23: Training attributes saved
+2025-05-29 16:24:23: network parameters and opt parameters saved.
+
+
+2025-05-29 16:24:23: Epoch:75
+2025-05-29 16:25:14: Epoch training 75 done after 50.12 seconds
+2025-05-29 16:25:14: Average epoch training time: 50.24 seconds
+2025-05-29 16:25:14: Traning loss: 8.4553e-01
+2025-05-29 16:25:14: Learning rate now: 1.8355e-02
+2025-05-29 16:25:14: The total epoch time was 50.36 seconds
+2025-05-29 16:25:14: Training attributes saved
+2025-05-29 16:25:14: network parameters and opt parameters saved.
+
+
+2025-05-29 16:25:14: Epoch:76
+2025-05-29 16:26:04: Epoch training 76 done after 50.15 seconds
+2025-05-29 16:26:04: Average epoch training time: 50.23 seconds
+2025-05-29 16:26:04: Traning loss: 8.4741e-01
+2025-05-29 16:26:04: Learning rate now: 1.8228e-02
+2025-05-29 16:26:04: The total epoch time was 50.39 seconds
+2025-05-29 16:26:04: Training attributes saved
+2025-05-29 16:26:05: network parameters and opt parameters saved.
+
+
+2025-05-29 16:26:05: Epoch:77
+2025-05-29 16:26:55: Epoch training 77 done after 50.29 seconds
+2025-05-29 16:26:55: Average epoch training time: 50.24 seconds
+2025-05-29 16:26:55: Traning loss: 8.4730e-01
+2025-05-29 16:26:55: Learning rate now: 1.8097e-02
+2025-05-29 16:26:55: The total epoch time was 50.53 seconds
+2025-05-29 16:26:55: Training attributes saved
+2025-05-29 16:26:55: network parameters and opt parameters saved.
+
+
+2025-05-29 16:26:55: Epoch:78
+2025-05-29 16:27:45: Epoch training 78 done after 50.26 seconds
+2025-05-29 16:27:45: Average epoch training time: 50.24 seconds
+2025-05-29 16:27:45: Traning loss: 8.4846e-01
+2025-05-29 16:27:46: Learning rate now: 1.7961e-02
+2025-05-29 16:27:46: The total epoch time was 50.65 seconds
+2025-05-29 16:27:46: Training attributes saved
+2025-05-29 16:27:46: network parameters and opt parameters saved.
+
+
+2025-05-29 16:27:46: Epoch:79
+2025-05-29 16:28:36: Epoch training 79 done after 50.19 seconds
+2025-05-29 16:28:36: Average epoch training time: 50.24 seconds
+2025-05-29 16:28:36: Traning loss: 8.4332e-01
+2025-05-29 16:28:36: Learning rate now: 1.7820e-02
+2025-05-29 16:28:36: The total epoch time was 50.43 seconds
+2025-05-29 16:28:36: Training attributes saved
+2025-05-29 16:28:37: network parameters and opt parameters saved.
+
+
+2025-05-29 16:28:37: Epoch:80
+2025-05-29 16:29:27: Epoch training 80 done after 50.23 seconds
+2025-05-29 16:29:27: Average epoch training time: 50.24 seconds
+2025-05-29 16:29:27: Traning loss: 8.2811e-01
+2025-05-29 16:29:27: Learning rate now: 1.7675e-02
+2025-05-29 16:29:27: The total epoch time was 50.47 seconds
+2025-05-29 16:29:27: Training attributes saved
+2025-05-29 16:29:27: network parameters and opt parameters saved.
+
+
+2025-05-29 16:29:27: Epoch:81
+2025-05-29 16:30:17: Epoch training 81 done after 50.22 seconds
+2025-05-29 16:30:17: Average epoch training time: 50.24 seconds
+2025-05-29 16:30:17: Traning loss: 8.2898e-01
+2025-05-29 16:30:18: Learning rate now: 1.7526e-02
+2025-05-29 16:30:18: The total epoch time was 50.46 seconds
+2025-05-29 16:30:18: Training attributes saved
+2025-05-29 16:30:18: network parameters and opt parameters saved.
+
+
+2025-05-29 16:30:18: Epoch:82
+2025-05-29 16:31:08: Epoch training 82 done after 50.24 seconds
+2025-05-29 16:31:08: Average epoch training time: 50.24 seconds
+2025-05-29 16:31:08: Traning loss: 8.4056e-01
+2025-05-29 16:31:08: Learning rate now: 1.7373e-02
+2025-05-29 16:31:08: The total epoch time was 50.47 seconds
+2025-05-29 16:31:08: Training attributes saved
+2025-05-29 16:31:09: network parameters and opt parameters saved.
+
+
+2025-05-29 16:31:09: Epoch:83
+2025-05-29 16:31:59: Epoch training 83 done after 50.31 seconds
+2025-05-29 16:31:59: Average epoch training time: 50.24 seconds
+2025-05-29 16:31:59: Traning loss: 8.3306e-01
+2025-05-29 16:31:59: Learning rate now: 1.7215e-02
+2025-05-29 16:31:59: The total epoch time was 50.54 seconds
+2025-05-29 16:31:59: Training attributes saved
+2025-05-29 16:31:59: network parameters and opt parameters saved.
+
+
+2025-05-29 16:31:59: Epoch:84
+2025-05-29 16:32:50: Epoch training 84 done after 50.29 seconds
+2025-05-29 16:32:50: Average epoch training time: 50.24 seconds
+2025-05-29 16:32:50: Traning loss: 8.1842e-01
+2025-05-29 16:32:50: Learning rate now: 1.7053e-02
+2025-05-29 16:32:50: The total epoch time was 50.52 seconds
+2025-05-29 16:32:50: Training attributes saved
+2025-05-29 16:32:50: network parameters and opt parameters saved.
+
+
+2025-05-29 16:32:50: Epoch:85
+2025-05-29 16:33:40: Epoch training 85 done after 50.22 seconds
+2025-05-29 16:33:40: Average epoch training time: 50.24 seconds
+2025-05-29 16:33:40: Traning loss: 8.2160e-01
+2025-05-29 16:33:40: Learning rate now: 1.6887e-02
+2025-05-29 16:33:40: The total epoch time was 50.44 seconds
+2025-05-29 16:33:40: Training attributes saved
+2025-05-29 16:33:41: network parameters and opt parameters saved.
+
+
+2025-05-29 16:33:41: Epoch:86
+2025-05-29 16:34:31: Epoch training 86 done after 50.22 seconds
+2025-05-29 16:34:31: Average epoch training time: 50.24 seconds
+2025-05-29 16:34:31: Traning loss: 8.1762e-01
+2025-05-29 16:34:31: Learning rate now: 1.6716e-02
+2025-05-29 16:34:31: The total epoch time was 50.44 seconds
+2025-05-29 16:34:31: Training attributes saved
+2025-05-29 16:34:31: network parameters and opt parameters saved.
+
+
+2025-05-29 16:34:31: Epoch:87
+2025-05-29 16:35:21: Epoch training 87 done after 50.18 seconds
+2025-05-29 16:35:21: Average epoch training time: 50.24 seconds
+2025-05-29 16:35:21: Traning loss: 8.2237e-01
+2025-05-29 16:35:22: Learning rate now: 1.6542e-02
+2025-05-29 16:35:22: The total epoch time was 50.41 seconds
+2025-05-29 16:35:22: Training attributes saved
+2025-05-29 16:35:22: network parameters and opt parameters saved.
+
+
+2025-05-29 16:35:22: Epoch:88
+2025-05-29 16:36:12: Epoch training 88 done after 50.19 seconds
+2025-05-29 16:36:12: Average epoch training time: 50.24 seconds
+2025-05-29 16:36:12: Traning loss: 8.2286e-01
+2025-05-29 16:36:12: Learning rate now: 1.6363e-02
+2025-05-29 16:36:12: The total epoch time was 50.41 seconds
+2025-05-29 16:36:12: Training attributes saved
+2025-05-29 16:36:12: network parameters and opt parameters saved.
+
+
+2025-05-29 16:36:12: Epoch:89
+2025-05-29 16:37:03: Epoch training 89 done after 50.27 seconds
+2025-05-29 16:37:03: Average epoch training time: 50.24 seconds
+2025-05-29 16:37:03: Traning loss: 8.2906e-01
+2025-05-29 16:37:03: Learning rate now: 1.6180e-02
+2025-05-29 16:37:03: The total epoch time was 50.64 seconds
+2025-05-29 16:37:03: Training attributes saved
+2025-05-29 16:37:03: network parameters and opt parameters saved.
+
+
+2025-05-29 16:37:03: Epoch:90
+2025-05-29 16:37:53: Epoch training 90 done after 50.27 seconds
+2025-05-29 16:37:53: Average epoch training time: 50.24 seconds
+2025-05-29 16:37:53: Traning loss: 8.1868e-01
+2025-05-29 16:37:54: Learning rate now: 1.5994e-02
+2025-05-29 16:37:54: The total epoch time was 50.49 seconds
+2025-05-29 16:37:54: Training attributes saved
+2025-05-29 16:37:54: network parameters and opt parameters saved.
+
+
+2025-05-29 16:37:54: Epoch:91
+2025-05-29 16:38:44: Epoch training 91 done after 50.29 seconds
+2025-05-29 16:38:44: Average epoch training time: 50.24 seconds
+2025-05-29 16:38:44: Traning loss: 8.2178e-01
+2025-05-29 16:38:44: Learning rate now: 1.5803e-02
+2025-05-29 16:38:44: The total epoch time was 50.52 seconds
+2025-05-29 16:38:44: Training attributes saved
+2025-05-29 16:38:44: network parameters and opt parameters saved.
+
+
+2025-05-29 16:38:44: Epoch:92
+2025-05-29 16:39:35: Epoch training 92 done after 50.26 seconds
+2025-05-29 16:39:35: Average epoch training time: 50.24 seconds
+2025-05-29 16:39:35: Traning loss: 8.1212e-01
+2025-05-29 16:39:35: Learning rate now: 1.5609e-02
+2025-05-29 16:39:35: The total epoch time was 50.49 seconds
+2025-05-29 16:39:35: Training attributes saved
+2025-05-29 16:39:35: network parameters and opt parameters saved.
+
+
+2025-05-29 16:39:35: Epoch:93
+2025-05-29 16:40:25: Epoch training 93 done after 50.35 seconds
+2025-05-29 16:40:25: Average epoch training time: 50.24 seconds
+2025-05-29 16:40:25: Traning loss: 8.2082e-01
+2025-05-29 16:40:26: Learning rate now: 1.5410e-02
+2025-05-29 16:40:26: The total epoch time was 50.58 seconds
+2025-05-29 16:40:26: Training attributes saved
+2025-05-29 16:40:26: network parameters and opt parameters saved.
+
+
+2025-05-29 16:40:26: Epoch:94
+2025-05-29 16:41:16: Epoch training 94 done after 50.32 seconds
+2025-05-29 16:41:16: Average epoch training time: 50.24 seconds
+2025-05-29 16:41:16: Traning loss: 8.2959e-01
+2025-05-29 16:41:16: Learning rate now: 1.5208e-02
+2025-05-29 16:41:16: The total epoch time was 50.55 seconds
+2025-05-29 16:41:16: Training attributes saved
+2025-05-29 16:41:17: network parameters and opt parameters saved.
+
+
+2025-05-29 16:41:17: Epoch:95
+2025-05-29 16:42:07: Epoch training 95 done after 50.24 seconds
+2025-05-29 16:42:07: Average epoch training time: 50.24 seconds
+2025-05-29 16:42:07: Traning loss: 8.2352e-01
+2025-05-29 16:42:07: Learning rate now: 1.5002e-02
+2025-05-29 16:42:07: The total epoch time was 50.47 seconds
+2025-05-29 16:42:07: Training attributes saved
+2025-05-29 16:42:07: network parameters and opt parameters saved.
+
+
+2025-05-29 16:42:07: Epoch:96
+2025-05-29 16:42:57: Epoch training 96 done after 50.24 seconds
+2025-05-29 16:42:57: Average epoch training time: 50.24 seconds
+2025-05-29 16:42:57: Traning loss: 8.1701e-01
+2025-05-29 16:42:58: Learning rate now: 1.4793e-02
+2025-05-29 16:42:58: The total epoch time was 50.48 seconds
+2025-05-29 16:42:58: Training attributes saved
+2025-05-29 16:42:58: network parameters and opt parameters saved.
+
+
+2025-05-29 16:42:58: Epoch:97
+2025-05-29 16:43:48: Epoch training 97 done after 50.19 seconds
+2025-05-29 16:43:48: Average epoch training time: 50.24 seconds
+2025-05-29 16:43:48: Traning loss: 8.0664e-01
+2025-05-29 16:43:48: Learning rate now: 1.4579e-02
+2025-05-29 16:43:48: The total epoch time was 50.42 seconds
+2025-05-29 16:43:48: Training attributes saved
+2025-05-29 16:43:48: network parameters and opt parameters saved.
+
+
+2025-05-29 16:43:48: Epoch:98
+2025-05-29 16:44:39: Epoch training 98 done after 50.22 seconds
+2025-05-29 16:44:39: Average epoch training time: 50.24 seconds
+2025-05-29 16:44:39: Traning loss: 8.1839e-01
+2025-05-29 16:44:39: Learning rate now: 1.4363e-02
+2025-05-29 16:44:39: The total epoch time was 50.46 seconds
+2025-05-29 16:44:39: Training attributes saved
+2025-05-29 16:44:39: network parameters and opt parameters saved.
+
+
+2025-05-29 16:44:39: Epoch:99
+2025-05-29 16:45:29: Epoch training 99 done after 50.34 seconds
+2025-05-29 16:45:29: Average epoch training time: 50.24 seconds
+2025-05-29 16:45:29: Traning loss: 8.0392e-01
+2025-05-29 16:45:30: Learning rate now: 1.4142e-02
+2025-05-29 16:45:30: The total epoch time was 50.58 seconds
+2025-05-29 16:45:30: Training attributes saved
+2025-05-29 16:45:30: network parameters and opt parameters saved.
+
+
+2025-05-29 16:45:30: Epoch:100
+2025-05-29 16:46:20: Epoch training 100 done after 50.24 seconds
+2025-05-29 16:46:20: Average epoch training time: 50.24 seconds
+2025-05-29 16:46:20: Traning loss: 8.0198e-01
+2025-05-29 16:46:20: Learning rate now: 1.3918e-02
+2025-05-29 16:46:20: The total epoch time was 50.47 seconds
+2025-05-29 16:46:20: Training attributes saved
+2025-05-29 16:46:21: network parameters and opt parameters saved.
+
+
+2025-05-29 16:46:21: Epoch:101
+2025-05-29 16:47:11: Epoch training 101 done after 50.35 seconds
+2025-05-29 16:47:11: Average epoch training time: 50.24 seconds
+2025-05-29 16:47:11: Traning loss: 8.1707e-01
+2025-05-29 16:47:11: Learning rate now: 1.3691e-02
+2025-05-29 16:47:11: The total epoch time was 50.73 seconds
+2025-05-29 16:47:11: Training attributes saved
+2025-05-29 16:47:11: network parameters and opt parameters saved.
+
+
+2025-05-29 16:47:11: Epoch:102
+2025-05-29 16:48:02: Epoch training 102 done after 50.26 seconds
+2025-05-29 16:48:02: Average epoch training time: 50.24 seconds
+2025-05-29 16:48:02: Traning loss: 8.0192e-01
+2025-05-29 16:48:02: Learning rate now: 1.3460e-02
+2025-05-29 16:48:02: The total epoch time was 50.50 seconds
+2025-05-29 16:48:02: Training attributes saved
+2025-05-29 16:48:02: network parameters and opt parameters saved.
+
+
+2025-05-29 16:48:02: Epoch:103
+2025-05-29 16:48:52: Epoch training 103 done after 50.32 seconds
+2025-05-29 16:48:52: Average epoch training time: 50.24 seconds
+2025-05-29 16:48:52: Traning loss: 7.9769e-01
+2025-05-29 16:48:53: Learning rate now: 1.3226e-02
+2025-05-29 16:48:53: The total epoch time was 50.56 seconds
+2025-05-29 16:48:53: Training attributes saved
+2025-05-29 16:48:53: network parameters and opt parameters saved.
+
+
+2025-05-29 16:48:53: Epoch:104
+2025-05-29 16:49:43: Epoch training 104 done after 50.26 seconds
+2025-05-29 16:49:43: Average epoch training time: 50.24 seconds
+2025-05-29 16:49:43: Traning loss: 8.1091e-01
+2025-05-29 16:49:43: Learning rate now: 1.2989e-02
+2025-05-29 16:49:43: The total epoch time was 50.49 seconds
+2025-05-29 16:49:43: Training attributes saved
+2025-05-29 16:49:43: network parameters and opt parameters saved.
+
+
+2025-05-29 16:49:43: Epoch:105
+2025-05-29 16:50:34: Epoch training 105 done after 50.37 seconds
+2025-05-29 16:50:34: Average epoch training time: 50.24 seconds
+2025-05-29 16:50:34: Traning loss: 7.8516e-01
+2025-05-29 16:50:34: Learning rate now: 1.2748e-02
+2025-05-29 16:50:34: The total epoch time was 50.60 seconds
+2025-05-29 16:50:34: Training attributes saved
+2025-05-29 16:50:34: network parameters and opt parameters saved.
+
+
+2025-05-29 16:50:34: Epoch:106
+2025-05-29 16:51:25: Epoch training 106 done after 50.29 seconds
+2025-05-29 16:51:25: Average epoch training time: 50.24 seconds
+2025-05-29 16:51:25: Traning loss: 7.9101e-01
+2025-05-29 16:51:25: Learning rate now: 1.2505e-02
+2025-05-29 16:51:25: The total epoch time was 50.52 seconds
+2025-05-29 16:51:25: Training attributes saved
+2025-05-29 16:51:25: network parameters and opt parameters saved.
+
+
+2025-05-29 16:51:25: Epoch:107
+2025-05-29 16:52:15: Epoch training 107 done after 50.31 seconds
+2025-05-29 16:52:15: Average epoch training time: 50.24 seconds
+2025-05-29 16:52:15: Traning loss: 7.8541e-01
+2025-05-29 16:52:15: Learning rate now: 1.2258e-02
+2025-05-29 16:52:15: The total epoch time was 50.53 seconds
+2025-05-29 16:52:15: Training attributes saved
+2025-05-29 16:52:16: network parameters and opt parameters saved.
+
+
+2025-05-29 16:52:16: Epoch:108
+2025-05-29 16:53:06: Epoch training 108 done after 50.28 seconds
+2025-05-29 16:53:06: Average epoch training time: 50.24 seconds
+2025-05-29 16:53:06: Traning loss: 8.0934e-01
+2025-05-29 16:53:06: Learning rate now: 1.2008e-02
+2025-05-29 16:53:06: The total epoch time was 50.50 seconds
+2025-05-29 16:53:06: Training attributes saved
+2025-05-29 16:53:06: network parameters and opt parameters saved.
+
+
+2025-05-29 16:53:06: Epoch:109
+2025-05-29 16:53:57: Epoch training 109 done after 50.31 seconds
+2025-05-29 16:53:57: Average epoch training time: 50.24 seconds
+2025-05-29 16:53:57: Traning loss: 7.9791e-01
+2025-05-29 16:53:57: Learning rate now: 1.1756e-02
+2025-05-29 16:53:57: The total epoch time was 50.53 seconds
+2025-05-29 16:53:57: Training attributes saved
+2025-05-29 16:53:57: network parameters and opt parameters saved.
+
+
+2025-05-29 16:53:57: Epoch:110
+2025-05-29 16:54:47: Epoch training 110 done after 50.31 seconds
+2025-05-29 16:54:47: Average epoch training time: 50.25 seconds
+2025-05-29 16:54:47: Traning loss: 7.9086e-01
+2025-05-29 16:54:48: Learning rate now: 1.1500e-02
+2025-05-29 16:54:48: The total epoch time was 50.53 seconds
+2025-05-29 16:54:48: 
+Progressive Training: Stage 3, size [32, 432, 432]
+
+
+2025-05-29 16:55:05: Training attributes saved
+2025-05-29 16:55:06: network parameters and opt parameters saved.
+
+
+2025-05-29 16:55:06: Epoch:111
+2025-05-29 16:55:56: Epoch training 111 done after 50.00 seconds
+2025-05-29 16:55:56: Average epoch training time: 50.24 seconds
+2025-05-29 16:55:56: Traning loss: 8.3201e-01
+2025-05-29 16:55:56: Learning rate now: 1.1242e-02
+2025-05-29 16:55:56: The total epoch time was 50.22 seconds
+2025-05-29 16:55:56: Training attributes saved
+2025-05-29 16:55:56: network parameters and opt parameters saved.
+
+
+2025-05-29 16:55:56: Epoch:112
+2025-05-29 16:56:46: Epoch training 112 done after 50.26 seconds
+2025-05-29 16:56:46: Average epoch training time: 50.24 seconds
+2025-05-29 16:56:46: Traning loss: 8.2409e-01
+2025-05-29 16:56:46: Learning rate now: 1.0980e-02
+2025-05-29 16:56:46: The total epoch time was 50.48 seconds
+2025-05-29 16:56:46: Training attributes saved
+2025-05-29 16:56:47: network parameters and opt parameters saved.
+
+
+2025-05-29 16:56:47: Epoch:113
+2025-05-29 16:57:37: Epoch training 113 done after 50.26 seconds
+2025-05-29 16:57:37: Average epoch training time: 50.24 seconds
+2025-05-29 16:57:37: Traning loss: 8.1631e-01
+2025-05-29 16:57:37: Learning rate now: 1.0717e-02
+2025-05-29 16:57:37: The total epoch time was 50.64 seconds
+2025-05-29 16:57:37: Training attributes saved
+2025-05-29 16:57:37: network parameters and opt parameters saved.
+
+
+2025-05-29 16:57:37: Epoch:114
+2025-05-29 16:58:28: Epoch training 114 done after 50.22 seconds
+2025-05-29 16:58:28: Average epoch training time: 50.24 seconds
+2025-05-29 16:58:28: Traning loss: 8.1042e-01
+2025-05-29 16:58:28: Learning rate now: 1.0450e-02
+2025-05-29 16:58:28: The total epoch time was 50.44 seconds
+2025-05-29 16:58:28: Training attributes saved
+2025-05-29 16:58:28: network parameters and opt parameters saved.
+
+
+2025-05-29 16:58:28: Epoch:115
+2025-05-29 16:59:18: Epoch training 115 done after 50.18 seconds
+2025-05-29 16:59:18: Average epoch training time: 50.24 seconds
+2025-05-29 16:59:18: Traning loss: 8.2502e-01
+2025-05-29 16:59:18: Learning rate now: 1.0181e-02
+2025-05-29 16:59:18: The total epoch time was 50.40 seconds
+2025-05-29 16:59:18: Training attributes saved
+2025-05-29 16:59:19: network parameters and opt parameters saved.
+
+
+2025-05-29 16:59:19: Epoch:116
+2025-05-29 17:00:09: Epoch training 116 done after 50.26 seconds
+2025-05-29 17:00:09: Average epoch training time: 50.24 seconds
+2025-05-29 17:00:09: Traning loss: 8.1992e-01
+2025-05-29 17:00:09: Learning rate now: 9.9092e-03
+2025-05-29 17:00:09: The total epoch time was 50.48 seconds
+2025-05-29 17:00:09: Training attributes saved
+2025-05-29 17:00:09: network parameters and opt parameters saved.
+
+
+2025-05-29 17:00:09: Epoch:117
+2025-05-29 17:00:59: Epoch training 117 done after 50.14 seconds
+2025-05-29 17:00:59: Average epoch training time: 50.24 seconds
+2025-05-29 17:00:59: Traning loss: 8.0766e-01
+2025-05-29 17:01:00: Learning rate now: 9.6351e-03
+2025-05-29 17:01:00: The total epoch time was 50.37 seconds
+2025-05-29 17:01:00: Training attributes saved
+2025-05-29 17:01:00: network parameters and opt parameters saved.
+
+
+2025-05-29 17:01:00: Epoch:118
+2025-05-29 17:01:50: Epoch training 118 done after 50.20 seconds
+2025-05-29 17:01:50: Average epoch training time: 50.24 seconds
+2025-05-29 17:01:50: Traning loss: 8.1597e-01
+2025-05-29 17:01:50: Learning rate now: 9.3586e-03
+2025-05-29 17:01:50: The total epoch time was 50.42 seconds
+2025-05-29 17:01:50: Training attributes saved
+2025-05-29 17:01:50: network parameters and opt parameters saved.
+
+
+2025-05-29 17:01:50: Epoch:119
+2025-05-29 17:02:41: Epoch training 119 done after 50.22 seconds
+2025-05-29 17:02:41: Average epoch training time: 50.24 seconds
+2025-05-29 17:02:41: Traning loss: 8.0168e-01
+2025-05-29 17:02:41: Learning rate now: 9.0798e-03
+2025-05-29 17:02:41: The total epoch time was 50.45 seconds
+2025-05-29 17:02:41: Training attributes saved
+2025-05-29 17:02:41: network parameters and opt parameters saved.
+
+
+2025-05-29 17:02:41: Epoch:120
+2025-05-29 17:03:31: Epoch training 120 done after 50.22 seconds
+2025-05-29 17:03:31: Average epoch training time: 50.24 seconds
+2025-05-29 17:03:31: Traning loss: 8.1509e-01
+2025-05-29 17:03:32: Learning rate now: 8.7988e-03
+2025-05-29 17:03:32: The total epoch time was 50.44 seconds
+2025-05-29 17:03:32: Training attributes saved
+2025-05-29 17:03:32: network parameters and opt parameters saved.
+
+
+2025-05-29 17:03:32: Epoch:121
+2025-05-29 17:04:22: Epoch training 121 done after 50.26 seconds
+2025-05-29 17:04:22: Average epoch training time: 50.24 seconds
+2025-05-29 17:04:22: Traning loss: 8.0185e-01
+2025-05-29 17:04:22: Learning rate now: 8.5156e-03
+2025-05-29 17:04:22: The total epoch time was 50.49 seconds
+2025-05-29 17:04:22: Training attributes saved
+2025-05-29 17:04:22: network parameters and opt parameters saved.
+
+
+2025-05-29 17:04:22: Epoch:122
+2025-05-29 17:05:13: Epoch training 122 done after 50.32 seconds
+2025-05-29 17:05:13: Average epoch training time: 50.24 seconds
+2025-05-29 17:05:13: Traning loss: 7.9611e-01
+2025-05-29 17:05:13: Learning rate now: 8.2303e-03
+2025-05-29 17:05:13: The total epoch time was 50.54 seconds
+2025-05-29 17:05:13: Training attributes saved
+2025-05-29 17:05:13: network parameters and opt parameters saved.
+
+
+2025-05-29 17:05:13: Epoch:123
+2025-05-29 17:06:03: Epoch training 123 done after 50.23 seconds
+2025-05-29 17:06:03: Average epoch training time: 50.24 seconds
+2025-05-29 17:06:03: Traning loss: 7.9636e-01
+2025-05-29 17:06:03: Learning rate now: 7.9430e-03
+2025-05-29 17:06:03: The total epoch time was 50.45 seconds
+2025-05-29 17:06:03: Training attributes saved
+2025-05-29 17:06:04: network parameters and opt parameters saved.
+
+
+2025-05-29 17:06:04: Epoch:124
+2025-05-29 17:06:54: Epoch training 124 done after 50.18 seconds
+2025-05-29 17:06:54: Average epoch training time: 50.24 seconds
+2025-05-29 17:06:54: Traning loss: 8.0269e-01
+2025-05-29 17:06:54: Learning rate now: 7.6537e-03
+2025-05-29 17:06:54: The total epoch time was 50.41 seconds
+2025-05-29 17:06:54: Training attributes saved
+2025-05-29 17:06:54: network parameters and opt parameters saved.
+
+
+2025-05-29 17:06:54: Epoch:125
+2025-05-29 17:07:44: Epoch training 125 done after 50.21 seconds
+2025-05-29 17:07:44: Average epoch training time: 50.24 seconds
+2025-05-29 17:07:44: Traning loss: 8.0343e-01
+2025-05-29 17:07:45: Learning rate now: 7.3625e-03
+2025-05-29 17:07:45: The total epoch time was 50.43 seconds
+2025-05-29 17:07:45: Training attributes saved
+2025-05-29 17:07:45: network parameters and opt parameters saved.
+
+
+2025-05-29 17:07:45: Epoch:126
+2025-05-29 17:08:35: Epoch training 126 done after 50.24 seconds
+2025-05-29 17:08:35: Average epoch training time: 50.24 seconds
+2025-05-29 17:08:35: Traning loss: 7.9857e-01
+2025-05-29 17:08:35: Learning rate now: 7.0695e-03
+2025-05-29 17:08:35: The total epoch time was 50.62 seconds
+2025-05-29 17:08:35: Training attributes saved
+2025-05-29 17:08:36: network parameters and opt parameters saved.
+
+
+2025-05-29 17:08:36: Epoch:127
+2025-05-29 17:09:26: Epoch training 127 done after 50.31 seconds
+2025-05-29 17:09:26: Average epoch training time: 50.24 seconds
+2025-05-29 17:09:26: Traning loss: 7.9772e-01
+2025-05-29 17:09:26: Learning rate now: 6.7748e-03
+2025-05-29 17:09:26: The total epoch time was 50.53 seconds
+2025-05-29 17:09:26: Training attributes saved
+2025-05-29 17:09:26: network parameters and opt parameters saved.
+
+
+2025-05-29 17:09:26: Epoch:128
+2025-05-29 17:10:17: Epoch training 128 done after 50.31 seconds
+2025-05-29 17:10:17: Average epoch training time: 50.24 seconds
+2025-05-29 17:10:17: Traning loss: 8.0107e-01
+2025-05-29 17:10:17: Learning rate now: 6.4783e-03
+2025-05-29 17:10:17: The total epoch time was 50.53 seconds
+2025-05-29 17:10:17: Training attributes saved
+2025-05-29 17:10:17: network parameters and opt parameters saved.
+
+
+2025-05-29 17:10:17: Epoch:129
+2025-05-29 17:11:07: Epoch training 129 done after 50.19 seconds
+2025-05-29 17:11:07: Average epoch training time: 50.24 seconds
+2025-05-29 17:11:07: Traning loss: 7.9993e-01
+2025-05-29 17:11:07: Learning rate now: 6.1803e-03
+2025-05-29 17:11:07: The total epoch time was 50.42 seconds
+2025-05-29 17:11:07: Training attributes saved
+2025-05-29 17:11:08: network parameters and opt parameters saved.
+
+
+2025-05-29 17:11:08: Epoch:130
+2025-05-29 17:11:58: Epoch training 130 done after 50.28 seconds
+2025-05-29 17:11:58: Average epoch training time: 50.24 seconds
+2025-05-29 17:11:58: Traning loss: 7.8589e-01
+2025-05-29 17:11:58: Learning rate now: 5.8808e-03
+2025-05-29 17:11:58: The total epoch time was 50.51 seconds
+2025-05-29 17:11:58: Training attributes saved
+2025-05-29 17:11:58: network parameters and opt parameters saved.
+
+
+2025-05-29 17:11:58: Epoch:131
+2025-05-29 17:12:48: Epoch training 131 done after 50.20 seconds
+2025-05-29 17:12:48: Average epoch training time: 50.24 seconds
+2025-05-29 17:12:48: Traning loss: 7.8315e-01
+2025-05-29 17:12:49: Learning rate now: 5.5798e-03
+2025-05-29 17:12:49: The total epoch time was 50.43 seconds
+2025-05-29 17:12:49: Training attributes saved
+2025-05-29 17:12:49: network parameters and opt parameters saved.
+
+
+2025-05-29 17:12:49: Epoch:132
+2025-05-29 17:13:39: Epoch training 132 done after 50.25 seconds
+2025-05-29 17:13:39: Average epoch training time: 50.24 seconds
+2025-05-29 17:13:39: Traning loss: 7.9282e-01
+2025-05-29 17:13:39: Learning rate now: 5.2775e-03
+2025-05-29 17:13:39: The total epoch time was 50.48 seconds
+2025-05-29 17:13:39: Training attributes saved
+2025-05-29 17:13:40: network parameters and opt parameters saved.
+
+
+2025-05-29 17:13:40: Epoch:133
+2025-05-29 17:14:30: Epoch training 133 done after 50.23 seconds
+2025-05-29 17:14:30: Average epoch training time: 50.24 seconds
+2025-05-29 17:14:30: Traning loss: 7.9271e-01
+2025-05-29 17:14:30: Learning rate now: 4.9738e-03
+2025-05-29 17:14:30: The total epoch time was 50.46 seconds
+2025-05-29 17:14:30: Training attributes saved
+2025-05-29 17:14:30: network parameters and opt parameters saved.
+
+
+2025-05-29 17:14:30: Epoch:134
+2025-05-29 17:15:20: Epoch training 134 done after 50.22 seconds
+2025-05-29 17:15:20: Average epoch training time: 50.24 seconds
+2025-05-29 17:15:20: Traning loss: 7.8287e-01
+2025-05-29 17:15:21: Learning rate now: 4.6689e-03
+2025-05-29 17:15:21: The total epoch time was 50.45 seconds
+2025-05-29 17:15:21: Training attributes saved
+2025-05-29 17:15:21: network parameters and opt parameters saved.
+
+
+2025-05-29 17:15:21: Epoch:135
+2025-05-29 17:16:11: Epoch training 135 done after 50.14 seconds
+2025-05-29 17:16:11: Average epoch training time: 50.24 seconds
+2025-05-29 17:16:11: Traning loss: 7.7408e-01
+2025-05-29 17:16:11: Learning rate now: 4.3629e-03
+2025-05-29 17:16:11: The total epoch time was 50.37 seconds
+2025-05-29 17:16:11: Training attributes saved
+2025-05-29 17:16:11: network parameters and opt parameters saved.
+
+
+2025-05-29 17:16:11: Epoch:136
+2025-05-29 17:17:02: Epoch training 136 done after 50.16 seconds
+2025-05-29 17:17:02: Average epoch training time: 50.24 seconds
+2025-05-29 17:17:02: Traning loss: 7.8436e-01
+2025-05-29 17:17:02: Learning rate now: 4.0557e-03
+2025-05-29 17:17:02: The total epoch time was 50.39 seconds
+2025-05-29 17:17:02: Training attributes saved
+2025-05-29 17:17:02: network parameters and opt parameters saved.
+
+
+2025-05-29 17:17:02: Epoch:137
+2025-05-29 17:17:52: Epoch training 137 done after 50.19 seconds
+2025-05-29 17:17:52: Average epoch training time: 50.24 seconds
+2025-05-29 17:17:52: Traning loss: 7.9277e-01
+2025-05-29 17:17:52: Learning rate now: 3.7476e-03
+2025-05-29 17:17:52: The total epoch time was 50.43 seconds
+2025-05-29 17:17:52: Training attributes saved
+2025-05-29 17:17:52: network parameters and opt parameters saved.
+
+
+2025-05-29 17:17:52: Epoch:138
+2025-05-29 17:18:43: Epoch training 138 done after 50.14 seconds
+2025-05-29 17:18:43: Average epoch training time: 50.24 seconds
+2025-05-29 17:18:43: Traning loss: 7.9122e-01
+2025-05-29 17:18:43: Learning rate now: 3.4386e-03
+2025-05-29 17:18:43: The total epoch time was 50.52 seconds
+2025-05-29 17:18:43: Training attributes saved
+2025-05-29 17:18:43: network parameters and opt parameters saved.
+
+
+2025-05-29 17:18:43: Epoch:139
+2025-05-29 17:19:33: Epoch training 139 done after 50.14 seconds
+2025-05-29 17:19:33: Average epoch training time: 50.24 seconds
+2025-05-29 17:19:33: Traning loss: 7.7235e-01
+2025-05-29 17:19:34: Learning rate now: 3.1287e-03
+2025-05-29 17:19:34: The total epoch time was 50.37 seconds
+2025-05-29 17:19:34: Training attributes saved
+2025-05-29 17:19:34: network parameters and opt parameters saved.
+
+
+2025-05-29 17:19:34: Epoch:140
+2025-05-29 17:20:24: Epoch training 140 done after 50.19 seconds
+2025-05-29 17:20:24: Average epoch training time: 50.24 seconds
+2025-05-29 17:20:24: Traning loss: 7.8178e-01
+2025-05-29 17:20:24: Learning rate now: 2.8180e-03
+2025-05-29 17:20:24: The total epoch time was 50.42 seconds
+2025-05-29 17:20:24: Training attributes saved
+2025-05-29 17:20:24: network parameters and opt parameters saved.
+
+
+2025-05-29 17:20:24: Epoch:141
+2025-05-29 17:21:15: Epoch training 141 done after 50.22 seconds
+2025-05-29 17:21:15: Average epoch training time: 50.24 seconds
+2025-05-29 17:21:15: Traning loss: 7.5596e-01
+2025-05-29 17:21:15: Learning rate now: 2.5067e-03
+2025-05-29 17:21:15: The total epoch time was 50.46 seconds
+2025-05-29 17:21:15: Training attributes saved
+2025-05-29 17:21:15: network parameters and opt parameters saved.
+
+
+2025-05-29 17:21:15: Epoch:142
+2025-05-29 17:22:05: Epoch training 142 done after 50.22 seconds
+2025-05-29 17:22:05: Average epoch training time: 50.24 seconds
+2025-05-29 17:22:05: Traning loss: 7.6692e-01
+2025-05-29 17:22:05: Learning rate now: 2.1947e-03
+2025-05-29 17:22:05: The total epoch time was 50.46 seconds
+2025-05-29 17:22:05: Training attributes saved
+2025-05-29 17:22:06: network parameters and opt parameters saved.
+
+
+2025-05-29 17:22:06: Epoch:143
+2025-05-29 17:22:56: Epoch training 143 done after 50.27 seconds
+2025-05-29 17:22:56: Average epoch training time: 50.24 seconds
+2025-05-29 17:22:56: Traning loss: 7.7092e-01
+2025-05-29 17:22:56: Learning rate now: 1.8822e-03
+2025-05-29 17:22:56: The total epoch time was 50.50 seconds
+2025-05-29 17:22:56: Training attributes saved
+2025-05-29 17:22:56: network parameters and opt parameters saved.
+
+
+2025-05-29 17:22:56: Epoch:144
+2025-05-29 17:23:47: Epoch training 144 done after 50.27 seconds
+2025-05-29 17:23:47: Average epoch training time: 50.24 seconds
+2025-05-29 17:23:47: Traning loss: 7.7434e-01
+2025-05-29 17:23:47: Learning rate now: 1.5692e-03
+2025-05-29 17:23:47: The total epoch time was 50.51 seconds
+2025-05-29 17:23:47: Training attributes saved
+2025-05-29 17:23:47: network parameters and opt parameters saved.
+
+
+2025-05-29 17:23:47: Epoch:145
+2025-05-29 17:24:37: Epoch training 145 done after 50.28 seconds
+2025-05-29 17:24:37: Average epoch training time: 50.24 seconds
+2025-05-29 17:24:37: Traning loss: 7.8324e-01
+2025-05-29 17:24:37: Learning rate now: 1.2558e-03
+2025-05-29 17:24:37: The total epoch time was 50.51 seconds
+2025-05-29 17:24:37: Training attributes saved
+2025-05-29 17:24:38: network parameters and opt parameters saved.
+
+
+2025-05-29 17:24:38: Epoch:146
+2025-05-29 17:25:28: Epoch training 146 done after 50.22 seconds
+2025-05-29 17:25:28: Average epoch training time: 50.24 seconds
+2025-05-29 17:25:28: Traning loss: 7.5349e-01
+2025-05-29 17:25:28: Learning rate now: 9.4213e-04
+2025-05-29 17:25:28: The total epoch time was 50.45 seconds
+2025-05-29 17:25:28: Training attributes saved
+2025-05-29 17:25:28: network parameters and opt parameters saved.
+
+
+2025-05-29 17:25:28: Epoch:147
+2025-05-29 17:26:18: Epoch training 147 done after 50.18 seconds
+2025-05-29 17:26:18: Average epoch training time: 50.24 seconds
+2025-05-29 17:26:18: Traning loss: 7.6463e-01
+2025-05-29 17:26:19: Learning rate now: 6.2822e-04
+2025-05-29 17:26:19: The total epoch time was 50.41 seconds
+2025-05-29 17:26:19: 
+Progressive Training: Stage 3, size [32, 432, 432]
+
+
+2025-05-29 17:26:37: Training attributes saved
+2025-05-29 17:26:37: network parameters and opt parameters saved.
+
+
+2025-05-29 17:26:37: Epoch:148
+2025-05-29 17:27:27: Epoch training 148 done after 49.98 seconds
+2025-05-29 17:27:27: Average epoch training time: 50.24 seconds
+2025-05-29 17:27:27: Traning loss: 7.7114e-01
+2025-05-29 17:27:27: Learning rate now: 3.1415e-04
+2025-05-29 17:27:27: The total epoch time was 50.22 seconds
+2025-05-29 17:27:27: Training attributes saved
+2025-05-29 17:27:27: network parameters and opt parameters saved.
+
+
+2025-05-29 17:27:27: Epoch:149
+2025-05-29 17:28:17: Epoch training 149 done after 50.27 seconds
+2025-05-29 17:28:17: Average epoch training time: 50.24 seconds
+2025-05-29 17:28:17: Traning loss: 7.6915e-01
+2025-05-29 17:28:18: Learning rate now: 1.2246e-18
+2025-05-29 17:28:18: The total epoch time was 50.66 seconds
+2025-05-29 17:28:18: Training attributes saved
+2025-05-29 17:28:18: network parameters and opt parameters saved.
+
+
+2025-05-29 17:28:18: Training finished!
+2025-05-29 17:28:18: Training time: Thu May 29 15:20:45 2025 - Thu May 29 17:28:18 2025 (2.093h)
+2025-05-29 17:28:18: Training attributes saved
+2025-05-29 17:28:18: network parameters and opt parameters saved.
