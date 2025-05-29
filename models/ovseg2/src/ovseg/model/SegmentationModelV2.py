@@ -146,7 +146,7 @@ class SegmentationModelV2(SegmentationModel):
                 self.network = DistributedDataParallel(self.network, device_ids[0,1])
             else:
                 # For single-node multi-GPU
-                self.network = DataParallel(self.network)
+                self.network = DataParallel(self.network, device_ids=list(range(torch.cuda.device_count())))
             print(f"Model wrapped with {'DistributedDataParallel' if distributed else 'DataParallel'}")
         else:
             print("Only one GPU available or no GPU found.")

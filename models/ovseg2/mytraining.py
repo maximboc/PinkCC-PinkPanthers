@@ -156,24 +156,13 @@ model_params['training']['num_epochs'] = 150
 model_params['preprocessed_path'] = "/home/user-data_challenge-33/data/preprocessed/SAMPLE/test_preprocessing"
 
 print(model_params)
-import torch.distributed as dist
-import os 
-# For DistributedDataParallel initialization (if you want to use it)
-if torch.cuda.device_count() > 1:
-    # Initialize the process group
-    os.environ['MASTER_ADDR'] = 'localhost'
-    os.environ['MASTER_PORT'] = '12355'
-    os.environ['RANK'] = '0'
-    os.environ['WORLD_SIZE'] = '1'
-    dist.init_process_group(backend='nccl')
 
 model = SegmentationModelV2(val_fold=val_fold,
                             data_name=data_name,
                             model_name=model_name,
                             preprocessed_name=preprocessed_name,
                             model_parameters=model_params,
-                            use_multi_gpu=False,
-                            distributed=True)
+                            use_multi_gpu=True,)
 
 # After the model is fully initialized, enable multi-GPU
 """
