@@ -132,15 +132,22 @@ model_params["prediction"] = {
 # CHANGE YOUR HYPER-PARAMETERS HERE! For example
 
 # change batch size to 4
-#model_params['data']['trn_dl_params']['batch_size'] = 16
 #model_params['data']['val_dl_params']['batch_size'] = 4
 # change momentum
 #model_params['training']['opt_params']['momentum'] = 0.98
 # change weight decay
 #model_params['training']['opt_params']['weight_decay'] = wd
 model_params['training']['prg_trn_sizes'] =  [[ 20 ,256, 256],[ 22, 304 ,304],[ 30 ,384, 384],[ 32 ,432, 432]]
-model_params['training']['prg_trn_resize_on_the_fly'] = False
+#model_params['training']['prg_trn_resize_on_the_fly'] = False
 model_params['training']['num_epochs'] = 150
+
+model_params['training']['prg_trn_resize_on_the_fly'] = True  # Enable this
+model_params['data']['val_dl_params']['batch_size'] = 16
+model_params["data"]["trn_dl_params"].update({
+    "num_workers": 2,      # Reduce workers to avoid CPU/disk bottleneck
+    "store_data_in_ram": True,  # Store data in RAM if you have enough
+    "epoch_len": 50,       # Start with shorter epochs for testing
+})
 
 # creat model object.
 # this object holds all objects that define a deep neural network model

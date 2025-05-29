@@ -209,6 +209,7 @@ class SegmentationTraining(NetworkTraining):
                                        for fol in all_fols])
                 if convert_scan:
                     # at least one .npy file is missing, convert...
+                    print(f"Converting scan {ind+1}/{total_scans}: {scan}")
                     self.print_and_log('convert scan '+scan)
                     tpl = ds._get_volume_tuple(ind)
                     # let's convert only the image
@@ -245,6 +246,7 @@ class SegmentationTraining(NetworkTraining):
                                                         prd_folder, scan, is_lb=True)
                     
                     else:
+                        print(f"Scan {ind+1}/{total_scans}: {scan} already exists, skipping")
                         if len(tpl) == 3:
                             # in this case we're in the second stage and also resize the
                             # prediction from the previous stage
