@@ -13,8 +13,8 @@ from torch.nn.parallel import DataParallel, DistributedDataParallel
 class SegmentationModelV2(SegmentationModel):
     def __init__(self, val_fold, data_name, model_name, model_parameters=None, preprocessed_name=None, network_name='network', is_inference_only = False, fmt_write='{:.4f}', model_parameters_name='model_parameters', plot_n_random_slices=1, dont_store_data_in_ram=False, use_multi_gpu=False, distributed=False):
         super().__init__(val_fold, data_name, model_name, model_parameters, preprocessed_name, network_name, is_inference_only, fmt_write, model_parameters_name, plot_n_random_slices, dont_store_data_in_ram)
-        if use_multi_gpu:
-            self.enable_multi_gpu(distributed=distributed)
+        self.use_multi_gpu = use_multi_gpu
+        self.distributed = distributed
     
     def initialise_preprocessing(self):
         if 'preprocessing' not in self.model_parameters:
@@ -84,6 +84,10 @@ class SegmentationModelV2(SegmentationModel):
                                        **params)
         print('Data initialised')
 
+        # Add this line to handle distributed sampler
+        if hasattr(self.data, 'trn_dl') and hasattr(self.data.trn_dl, 'sampler'):
+            self._original_sampler = self.data.trn_dl.sampler
+
 
     def __call__(self, data_tpl, do_postprocessing=True):
         '''
@@ -139,15 +143,28 @@ class SegmentationModelV2(SegmentationModel):
             distributed: If True, use DistributedDataParallel (recommended for multi-node),
                         otherwise use DataParallel (simpler but less efficient)
         """
+
+        if not hasattr(self, 'network') or self.network is None:
+            raise AttributeError("Network must be initialized before enabling multi-GPU")
+        # Move to GPU first if not already there
+        if torch.cuda.is_available():
+            if not next(self.network.parameters()).is_cuda:
+                print("Moving network to GPU first...")
+                self.network = self.network.cuda()
+
         if torch.cuda.device_count() > 1:
             print(f"Using {torch.cuda.device_count()} GPUs!")
+            print(f"Network device before wrapping: {next(self.network.parameters()).device}")
+
             if distributed:
-                # For distributed training (multi-node)
-                self.network = DistributedDataParallel(self.network, device_ids[0,1])
+                self.network = DistributedDataParallel(self.network)
             else:
-                # For single-node multi-GPU
-                self.network = DataParallel(self.network, device_ids=list(range(torch.cuda.device_count())))
+                device_ids = list(range(torch.cuda.device_count()))
+                self.network = DataParallel(self.network, device_ids=device_ids)
+                print(f"DataParallel device_ids: {device_ids}")
+
             print(f"Model wrapped with {'DistributedDataParallel' if distributed else 'DataParallel'}")
+            print(f"Network type after wrapping: {type(self.network)}")
         else:
             print("Only one GPU available or no GPU found.")
 
@@ -181,3 +198,7 @@ class SegmentationModelV2(SegmentationModel):
             output = output.cpu().numpy()
         
         return output
+    def setup_multi_gpu_if_requested(self):
+        """Call this after the model is fully initialized to enable multi-GPU"""
+        if hasattr(self, 'use_multi_gpu') and self.use_multi_gpu:
+            self.enable_multi_gpu(distributed=getattr(self, 'distributed', False))

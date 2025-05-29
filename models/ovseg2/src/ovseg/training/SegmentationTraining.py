@@ -76,7 +76,15 @@ class SegmentationTraining(NetworkTraining):
             # with the last channel of the input tensor
             mask = mask * xb[: -1:]      
 
-        yb = to_one_hot_encoding(yb, self.network.out_channels)
+        # FIX: Handle both DataParallel and regular network
+        if hasattr(self.network, 'module'):
+            # DataParallel case - access through .module
+            out_channels = self.network.module.out_channels
+        else:
+            # Regular network case
+            out_channels = self.network.out_channels
+        
+        yb = to_one_hot_encoding(yb, out_channels)
         out = self.network(xb)
         loss = self.loss_fctn(out, yb, mask)
         return loss

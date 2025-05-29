@@ -8,7 +8,7 @@ data_name = 'test'
 # same name as in the preprocessing script
 preprocessed_name = 'preprocessed'
 # give each model a unique name. This way the code will be able to identify them
-model_name = 'deux_pagnoux'
+model_name = 'huit_deux__deux_pagnoux'
 # which fold of the training is performed?
 # Example 5-fold cross-vadliation: CV folds are 0,1,...,4.
 #                                  For each val_fold > 4 no CV is applied and 
@@ -132,7 +132,7 @@ model_params["prediction"] = {
 # CHANGE YOUR HYPER-PARAMETERS HERE! For example
 
 # change batch size to 4
-#model_params['data']['trn_dl_params']['batch_size'] = 4
+#model_params['data']['trn_dl_params']['batch_size'] = 16
 #model_params['data']['val_dl_params']['batch_size'] = 4
 # change momentum
 #model_params['training']['opt_params']['momentum'] = 0.98
@@ -162,7 +162,7 @@ model = SegmentationModelV2(val_fold=val_fold,
                             model_name=model_name,
                             preprocessed_name=preprocessed_name,
                             model_parameters=model_params,
-                            use_multi_gpu=True,)
+                            use_multi_gpu=True)
 
 # After the model is fully initialized, enable multi-GPU
 """
@@ -175,25 +175,27 @@ if torch.cuda.is_available() and torch.cuda.device_count() > 1:
     print(f"Network type: {type(model.network)}")
     print(f"Available GPUs: {list(range(torch.cuda.device_count()))}")
 """
-# Make sure model is on GPU
-model.network.cuda()
+# Monkey patch the training to enable multi-GPU after GPU move
+original_train = model.training.train
 
-# Debug multi-GPU setup
-print("=== GPU Setup Debug ===")
-print(f"CUDA available: {torch.cuda.is_available()}")
-print(f"Number of GPUs: {torch.cuda.device_count()}")
-for i in range(torch.cuda.device_count()):
-    print(f"GPU {i}: {torch.cuda.get_device_name(i)}")
-print(f"Current device: {torch.cuda.current_device()}")
-print(f"Network is on device: {next(model.network.parameters()).device}")
-print(f"Network type: {type(model.network)}")
-print("========================")
-# Add this to get more detailed parallelization info
-if hasattr(model.network, 'device_ids'):
-    print(f"Parallel device IDs: {model.network.device_ids}")
-if hasattr(model.network, 'module'):
-    print(f"Underlying module type: {type(model.network.module)}")
+def patched_train():
+    # Call original train which moves network to GPU
+    model.training.network = model.training.network.to(model.training.dev)
 
+    # NOW enable multi-GPU
+    if torch.cuda.device_count() > 1:
+        print(f"Enabling multi-GPU with {torch.cuda.device_count()} GPUs")
+        device_ids = list(range(torch.cuda.device_count()))
+        model.training.network = torch.nn.DataParallel(model.training.network, device_ids=device_ids)
+        model.network = model.training.network  # Keep reference in sync
+        print(f"Network wrapped with DataParallel: {device_ids}")
+
+    # Continue with training
+    model.training.enable_autotune()
+    super(type(model.training), model.training).train()
+
+# Replace the train method
+model.training.train = patched_train
 # execute the trainig, simple as that!
 # It will check for previous checkpoints and load them
 print(f"Training script")
