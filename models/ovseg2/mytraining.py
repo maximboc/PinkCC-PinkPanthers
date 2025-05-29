@@ -2,12 +2,13 @@ from ovseg.model.SegmentationModelV2 import SegmentationModelV2
 from ovseg.model.SegmentationEnsembleV2 import SegmentationEnsembleV2
 from ovseg.model.model_parameters_segmentation import get_model_params_3d_UNet,get_model_params_3d_res_encoder_U_Net ,get_model_params_3d_from_preprocessed_folder
 
+import torch
 # name of your raw dataset
-data_name = 'YES'
+data_name = 'test'
 # same name as in the preprocessing script
 preprocessed_name = 'preprocessed'
 # give each model a unique name. This way the code will be able to identify them
-model_name = 'pagnoux'
+model_name = 'deux_pagnoux'
 # which fold of the training is performed?
 # Example 5-fold cross-vadliation: CV folds are 0,1,...,4.
 #                                  For each val_fold > 4 no CV is applied and 
@@ -96,7 +97,7 @@ model_params["data"] = {
     },
     "val_dl_params": {
         "patch_size": [32, 216, 216],
-        "batch_size": 4,
+        "batch_size": 8,
         "num_workers": 0,
         "pin_memory": True,
         "epoch_len": 8,
@@ -160,11 +161,33 @@ print(model_params)
 model = SegmentationModelV2(val_fold=val_fold,
                             data_name=data_name,
                             model_name=model_name,
-                    
                             preprocessed_name=preprocessed_name,
                             model_parameters=model_params,
-                            use_multi_gpu=True)
+                            use_multi_gpu=False)  # Set to False initially
 
+# After the model is fully initialized, enable multi-GPU
+if torch.cuda.is_available() and torch.cuda.device_count() > 1:
+    print(f"Enabling multi-GPU support for {torch.cuda.device_count()} GPUs")
+    model.network = torch.nn.DataParallel(model.network)
+    print(f"Model wrapped with DataParallel")
+    
+    # Verify the wrapper
+    print(f"Network type: {type(model.network)}")
+    print(f"Available GPUs: {list(range(torch.cuda.device_count()))}")
+
+# Make sure model is on GPU
+model.network.cuda()
+
+# Debug multi-GPU setup
+print("=== GPU Setup Debug ===")
+print(f"CUDA available: {torch.cuda.is_available()}")
+print(f"Number of GPUs: {torch.cuda.device_count()}")
+for i in range(torch.cuda.device_count()):
+    print(f"GPU {i}: {torch.cuda.get_device_name(i)}")
+print(f"Current device: {torch.cuda.current_device()}")
+print(f"Network is on device: {next(model.network.parameters()).device}")
+print(f"Network type: {type(model.network)}")
+print("========================")
 
 # execute the trainig, simple as that!
 # It will check for previous checkpoints and load them

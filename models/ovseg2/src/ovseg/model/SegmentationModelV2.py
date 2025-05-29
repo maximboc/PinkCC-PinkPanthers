@@ -147,9 +147,10 @@ class SegmentationModelV2(SegmentationModel):
             else:
                 # For single-node multi-GPU
                 self.network = DataParallel(self.network)
+            print(f"Model wrapped with {'DistributedDataParallel' if distributed else 'DataParallel'}")
         else:
             print("Only one GPU available or no GPU found.")
-    
+
     def prediction(self, im):
         """
         Perform prediction with the network, handling multi-GPU if enabled.
