@@ -94,10 +94,34 @@ class SegmentationTraining(NetworkTraining):
         if self.epochs_done == self.num_epochs:
             return
 
+        # Store previous stage to detect changes
+        prev_stage = getattr(self, 'prg_trn_stage', -1)
         # compute which stage we are in atm
         self.prg_trn_stage = min([self.epochs_done // self.prg_trn_epochs_per_stage,
                                 self.prg_trn_n_stages - 1])
 
+
+        # Detect stage change
+        stage_changed = prev_stage != self.prg_trn_stage
+        if stage_changed:
+            self.print_and_log(f'Progressive Training Stage Change: {prev_stage} -> {self.prg_trn_stage}')
+            
+            # Clear any cached features/gradients that might have wrong dimensions
+            torch.cuda.empty_cache()
+            
+            # Reset network internal state if it has one
+            if hasattr(self.network, 'module'):
+                network = self.network.module
+            else:
+                network = self.network
+                
+            # Reset any internal feature caches in the network
+            if hasattr(network, 'reset_feature_cache'):
+                network.reset_feature_cache()
+            
+            # Force garbage collection
+            import gc
+            gc.collect()
         # this is just getting the input patch size for the current stage
         # if we use grid augmentations the out shape of the augmentation is the input size
         # for the network. Else we can take the sampled size
