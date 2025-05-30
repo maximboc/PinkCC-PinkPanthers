@@ -96,7 +96,7 @@ class SegmentationTraining(NetworkTraining):
 
         # compute which stage we are in atm
         self.prg_trn_stage = min([self.epochs_done // self.prg_trn_epochs_per_stage,
-                                  self.prg_trn_n_stages - 1])
+                                self.prg_trn_n_stages - 1])
 
         # this is just getting the input patch size for the current stage
         # if we use grid augmentations the out shape of the augmentation is the input size
@@ -110,17 +110,20 @@ class SegmentationTraining(NetworkTraining):
             print_shape = self.prg_trn_sizes[self.prg_trn_stage]
 
         self.print_and_log('\nProgressive Training: '
-                           'Stage {}, size {}'.format(self.prg_trn_stage, print_shape),
-                           2)
+                        'Stage {}, size {}'.format(self.prg_trn_stage, print_shape),
+                        2)
 
         # now set the new patch size
         if self.prg_trn_resize_on_the_fly:
 
             if self.prg_trn_stage < self.prg_trn_n_stages - 1:
+                # FIX: Handle DataParallel access to is_2d attribute
+                network_is_2d = self.network.module.is_2d if hasattr(self.network, 'module') else self.network.is_2d
+                
                 # the most imporant part of progressive training: we update the resizing function
                 # that should make the batches smaller
                 self.prg_trn_process_batch = resize(self.prg_trn_sizes[self.prg_trn_stage],
-                                                    self.network.is_2d)
+                                                    network_is_2d)
             else:
                 # here we assume that the last stage of the progressive training has the desired
                 # size i.e. the size that the augmentation/the dataloader returns
@@ -138,7 +141,12 @@ class SegmentationTraining(NetworkTraining):
             # here we update architectural paramters, this should be dropout and stochastic depth
             # rate
             h = self.prg_trn_stage / (self.prg_trn_n_stages - 1)
-            self.network.update_prg_trn(self.prg_trn_arch_params, h)
+            
+            # FIX: Handle DataParallel access to update_prg_trn method
+            if hasattr(self.network, 'module'):
+                self.network.module.update_prg_trn(self.prg_trn_arch_params, h)
+            else:
+                self.network.update_prg_trn(self.prg_trn_arch_params, h)
 
         if self.prg_trn_aug_params is not None:
             # here we update augmentation parameters. The idea is we augment more towards the
@@ -211,6 +219,7 @@ class SegmentationTraining(NetworkTraining):
                     # at least one .npy file is missing, convert...
                     print(f"Converting scan {ind+1}/{total_scans}: {scan}")
                     self.print_and_log('convert scan '+scan)
+
                     tpl = ds._get_volume_tuple(ind)
                     # let's convert only the image
                     im = tpl[0]
