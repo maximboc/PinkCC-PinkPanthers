@@ -149,12 +149,6 @@ model_params["data"]["trn_dl_params"].update({
     "epoch_len": 50,       # Start with shorter epochs for testing
 })
 
-model_params['training']['early_stopping'] = {
-    'patience': 20,
-    'min_delta': 0.001,
-    'monitor': 'val_loss'
-}
-
 # creat model object.
 # this object holds all objects that define a deep neural network model
 #   - preprocessing
@@ -190,12 +184,6 @@ if torch.cuda.is_available() and torch.cuda.device_count() > 1:
 """
 # Monkey patch the training to enable multi-GPU after GPU move
 original_train = model.training.train
-
-early_stopping = EarlyStopping(
-    patience=20,
-    min_delta=0.001,
-    restore_best_weights=True
-)
 
 def patched_train():
     # Call original train which moves network to GPU
