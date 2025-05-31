@@ -1,7 +1,6 @@
 from ovseg.model.SegmentationModelV2 import SegmentationModelV2
 from ovseg.model.SegmentationEnsembleV2 import SegmentationEnsembleV2
 from ovseg.model.model_parameters_segmentation import get_model_params_3d_UNet,get_model_params_3d_res_encoder_U_Net ,get_model_params_3d_from_preprocessed_folder
-from earlystopping import EarlyStopping
 
 import torch
 # name of your raw dataset
@@ -214,44 +213,8 @@ def patched_train():
     model.training.enable_autotune()
     super(type(model.training), model.training).train()
 
-
-def train_with_early_stopping():
-    model.training.network = model.training.network.to(model.training.dev)
-    
-    # Enable multi-GPU if available
-    if torch.cuda.device_count() > 1:
-        print(f"Enabling multi-GPU with {torch.cuda.device_count()} GPUs")
-        device_ids = list(range(torch.cuda.device_count()))
-        model.training.network = torch.nn.DataParallel(model.training.network, device_ids=device_ids)
-        model.network = model.training.network
-        print(f"Network wrapped with DataParallel: {device_ids}")
-    
-    model.training.enable_autotune()
-    
-    # Custom training loop with early stopping
-    for epoch in range(model_params['training']['num_epochs']):
-        # Train one epoch
-        model.training.network.train()
-        train_loss = model.training.train_one_epoch()
-        
-        # Validate
-        model.training.network.eval()
-        val_loss = model.training.validate_one_epoch()
-        
-        print(f"Epoch {epoch+1}: Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}")
-        
-        # Check early stopping
-        early_stopping(val_loss, model.training.network)
-        
-        if early_stopping.early_stop:
-            print(f"Early stopping triggered at epoch {epoch+1}")
-            print(f"Best validation loss: {early_stopping.best_loss:.4f}")
-            break
-    
-    return model
-
 # Replace the train method
-model.training.train = train_with_early_stopping
+model.training.train = patched_train
 # execute the trainig, simple as that!
 # It will check for previous checkpoints and load them
 print(f"Training script")
