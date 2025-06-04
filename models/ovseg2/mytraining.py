@@ -1,7 +1,7 @@
 from ovseg.model.SegmentationModelV2 import SegmentationModelV2
 from ovseg.model.SegmentationEnsembleV2 import SegmentationEnsembleV2
 from ovseg.model.model_parameters_segmentation import get_model_params_3d_UNet,get_model_params_3d_res_encoder_U_Net ,get_model_params_3d_from_preprocessed_folder
-
+import os
 # name of your raw dataset
 data_name = 'YES'
 # same name as in the preprocessing script
@@ -126,8 +126,6 @@ model_params["prediction"] = {
 }
 
 
-
-
 # CHANGE YOUR HYPER-PARAMETERS HERE! For example
 
 # change batch size to 4
@@ -191,3 +189,34 @@ if val_fold < model_params['data']['n_folds']:
 # ens.eval_raw_dataset('MY_TEST_DATA')
 
 
+def create_model(val_fold, data_name, model_name, preprocessed_name, model_params, distributed=False):
+    """Create model with optional distributed support."""
+    
+    # Modify data loader parameters for distributed training
+    if distributed:
+        model_params['data']['trn_dl_params']['distributed'] = True
+        model_params['data']['val_dl_params']['distributed'] = True
+        model_params['training']['distributed'] = True
+    
+    model = SegmentationModelV2(val_fold=val_fold,
+                                data_name=data_name,
+                                model_name=model_name,
+                                preprocessed_name=preprocessed_name,
+                                model_parameters=model_params)
+    return model
+
+# Add distributed parameters to model_params
+model_params['training']['distributed'] = False  # Will be overridden in distributed mode
+
+if __name__ == "__main__":
+    # Check if running in distributed mode
+    if 'RANK' in os.environ:
+        # Running in distributed mode - this will be handled by distributed_training.py
+        pass
+    else:
+        # Single GPU training
+        model = create_model(val_fold, data_name, model_name, preprocessed_name, model_params)
+        model.training.train()
+        
+        if val_fold < model_params['data']['n_folds']:
+            model.eval_validation_set()

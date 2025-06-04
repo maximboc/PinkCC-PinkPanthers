@@ -10,6 +10,9 @@ except ModuleNotFoundError:
     print('No tqdm found, using no pretty progressing bars')
     tqdm = lambda x: x
 
+import torch.distributed as dist
+
+
 
 class SegmentationBatchDatasetV2(object):
 
@@ -329,15 +332,26 @@ class SegmentationBatchDatasetV2(object):
         return volume.astype(self.dtype)
 
 
-
 def SegmentationDataloaderV2(vol_ds, patch_size, batch_size, num_workers=None,
-                           pin_memory=True, epoch_len=250, *args, **kwargs):
+                           pin_memory=True, epoch_len=250, distributed=False, *args, **kwargs):
     dataset = SegmentationBatchDatasetV2(vol_ds=vol_ds, patch_size=patch_size, batch_size=batch_size,
                                        epoch_len=epoch_len, *args, **kwargs)
     if num_workers is None:
         num_workers = 0 if os.name == 'nt' else 5
+    
     worker_init_fn = lambda _: np.random.seed()
-    sampler = torch.utils.data.SequentialSampler(range(batch_size * epoch_len))
+    
+    # Use DistributedSampler for distributed training
+    if distributed:
+        sampler = torch.utils.data.distributed.DistributedSampler(
+            range(batch_size * epoch_len),
+            num_replicas=dist.get_world_size(),
+            rank=dist.get_rank(),
+            shuffle=True
+        )
+    else:
+        sampler = torch.utils.data.SequentialSampler(range(batch_size * epoch_len))
+    
     return torch.utils.data.DataLoader(dataset,
                                        sampler=sampler,
                                        batch_size=batch_size,

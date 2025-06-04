@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import os
 import numpy as np
+import torch.distributed as dist
 
 
 class SegmentationTraining(NetworkTraining):
@@ -19,6 +20,7 @@ class SegmentationTraining(NetworkTraining):
                  batches_have_masks=False,
                  mask_with_bin_pred=False,
                  stop_after_epochs=[],
+                 distributed=False,
                  **kwargs):
         super().__init__(*args, **kwargs)
         self.prg_trn_sizes = prg_trn_sizes
@@ -29,6 +31,10 @@ class SegmentationTraining(NetworkTraining):
         self.batches_have_masks = batches_have_masks
         self.mask_with_bin_pred = mask_with_bin_pred
         self.stop_after_epochs = stop_after_epochs
+        # Distributed training parameters
+        self.distributed = distributed
+        self.rank = 0 if not distributed else dist.get_rank()
+        self.world_size = 1 if not distributed else dist.get_world_size()
 
         # now have fun with progressive training!
         self.do_prg_trn = self.prg_trn_sizes is not None
@@ -77,8 +83,12 @@ class SegmentationTraining(NetworkTraining):
             mask = mask * xb[: -1:]      
 
         yb = to_one_hot_encoding(yb, self.network.out_channels)
+        
+        # Handle DDP wrapper
+        network = self.network.module if hasattr(self.network, 'module') else self.network
         out = self.network(xb)
         loss = self.loss_fctn(out, yb, mask)
+
         return loss
 
     def prg_trn_update_parameters(self):
@@ -291,9 +301,20 @@ class SegmentationTraining(NetworkTraining):
             else:
                 im_rsz = im_rsz[0]
             np.save(os.path.join(path, folder+'_'+ext, scan), im_rsz)
-          
+    
+    def print_and_log(self, message, level=1):
+        """Only print and log on rank 0 to avoid duplicate messages."""
+        if self.rank == 0:
+            super().print_and_log(message, level)
+
+    def save_checkpoint(self, epoch):
+        """Only save checkpoint on rank 0."""
+        if self.rank == 0:
+            super().save_checkpoint(epoch)
 
     def on_epoch_end(self):
+        if self.distributed:
+            dist.barrier()
         super().on_epoch_end()
         if self.do_prg_trn:
             # if we do progressive training we update the parameters....
