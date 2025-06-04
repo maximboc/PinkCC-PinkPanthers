@@ -144,15 +144,15 @@ class SegmentationBatchDatasetV2(object):
         self._maybe_clean_stored_data()
 
         if self.store_data_in_ram:
-            print('Store data in RAM.\n')
+            print(f'Rank {self.rank}: Store data in RAM.\n')
             self.data = []
             sleep(1)
-            for ind in tqdm(range(self.n_volumes)):                
-                volumes = self._read_volume_tuple(ind, mmap_mode=None)
+            for i, vol_idx in enumerate(tqdm(self.volume_indices, desc=f"Rank {self.rank} loading data")):                
+                volumes = self._read_volume_tuple(vol_idx, mmap_mode=None)
                 self.data.append(volumes)
                     
         # store coords in ram
-        print('Precomputing bias coordinates to store them in RAM.\n')
+        print(f'Rank {self.rank}: Precomputing bias coordinates to store them in RAM.\n')
         self.bias_coords_list = []
         self.contains_bias_list = [[] for _ in range(self.n_fg_classes)]
         self.weight_list = []
@@ -163,40 +163,43 @@ class SegmentationBatchDatasetV2(object):
             self.contains_mask_list = []
         
         sleep(0.1)
-        for ind in tqdm(range(self.n_volumes)):
-            volumes = self._get_volume_tuple(ind)
+        for i, vol_idx in enumerate(tqdm(self.volume_indices, desc=f"Rank {self.rank} computing coordinates")):
+            volumes = self._get_volume_tuple_by_local_index(i)
             
             coords, weight = self._compute_bias_coordinates_and_weight(volumes)
             self.bias_coords_list.append(coords)
             self.weight_list.append(weight)
 
-            # save which index has which fg class
-            for i in range(self.n_fg_classes):
-                if coords[i].shape[1] > 0:
-                    self.contains_bias_list[i].append(ind)
+            # save which local index has which fg class
+            for j in range(self.n_fg_classes):
+                if coords[j].shape[1] > 0:
+                    self.contains_bias_list[j].append(i)  # Use local index
             
             # now if we have masks we will only sample inside them
             if self.has_mask:
                 mask_coords = np.stack(np.where(volumes[-2][0] > 0)).astype(np.int16)
                 self.mask_coords_list.append(mask_coords)
                 if mask_coords.shape[1] > 0:
-                    self.contains_mask_list.append(ind)
+                    self.contains_mask_list.append(i)  # Use local index
         
-        self.weight_list = np.array(self.weight_list) / np.sum(self.weight_list)
+        if len(self.weight_list) > 0:
+            self.weight_list = np.array(self.weight_list)
+            if np.sum(self.weight_list) > 0:
+                self.weight_list = self.weight_list / np.sum(self.weight_list)
         
         print('Done')
         
         # print how many scans we have with which class
         for c in range(self.n_fg_classes):
-            print('Found {} scans with fg {}'.format(len(self.contains_bias_list[c]), c))
+            print(f'Rank {self.rank}: Found {len(self.contains_bias_list[c])} scans with fg {c}')
 
         # available classes start from 0
         self.availble_classes = [i for i, l in enumerate(self.contains_bias_list) if len(l) > 0]
         
         if len(self.availble_classes) < self.n_fg_classes:
             missing_classes = [i+1 for i, l in enumerate(self.contains_bias_list) if len(l) == 0]
-            print('Warning! Some fg classes were not found in this dataset. '
-                  'Missing classes: {}'.format(missing_classes))
+            print(f'Rank {self.rank}: Warning! Some fg classes were not found in this dataset. '
+                  f'Missing classes: {missing_classes}')
         
         sleep(1)
 
@@ -253,86 +256,113 @@ class SegmentationBatchDatasetV2(object):
         
         return volumes
 
-    def _get_volume_tuple(self, ind=None):
-
-        if ind is None:
-            ind = np.random.randint(self.n_volumes)
-
+    def _get_volume_tuple_by_local_index(self, local_ind):
+        """Get volume tuple using local index (0 to len(volume_indices)-1)"""
+        if local_ind >= len(self.volume_indices):
+            local_ind = np.random.randint(len(self.volume_indices))
+        
+        vol_idx = self.volume_indices[local_ind]
+        
         load_from_ram = hasattr(self, 'data')
         if load_from_ram:
-            load_from_ram = ind < len(self.data)
+            load_from_ram = local_ind < len(self.data)
 
         if load_from_ram:
-            volumes = self.data[ind]
+            volumes = self.data[local_ind]
         else:
-            volumes = self._read_volume_tuple(ind, mmap_mode='r')
+            volumes = self._read_volume_tuple(vol_idx, mmap_mode='r')
 
         # maybe add an additional axis
         volumes = [maybe_add_channel_dim(vol) for vol in volumes]
         
         return volumes
 
+    def _get_volume_tuple(self, ind=None):
+        """Get volume tuple - for backward compatibility"""
+        if ind is None:
+            local_ind = np.random.randint(len(self.volume_indices))
+        else:
+            # Convert global index to local index if needed
+            if ind in self.volume_indices:
+                local_ind = self.volume_indices.index(ind)
+            else:
+                local_ind = np.random.randint(len(self.volume_indices))
+        
+        return self._get_volume_tuple_by_local_index(local_ind)
+
     def _get_random_volume_ind(self, biased_sampling):
-        # returns the volume index and a random class
+        # returns the local volume index and a random class
         
         if biased_sampling:
             
             if self.bias == 'error':
                 # first pick a volume according to the weight
-                if np.random.rand() < self.p_weighted_volume_sampling:
-                    ind = np.random.choice(range(self.n_volumes), 
-                                           p=self.weight_list)
+                if np.random.rand() < self.p_weighted_volume_sampling and len(self.weight_list) > 0:
+                    local_ind = np.random.choice(range(len(self.volume_indices)), 
+                                               p=self.weight_list)
                 else:
-                    ind = np.random.randint(self.n_volumes)
+                    local_ind = np.random.randint(len(self.volume_indices))
             
-                classes_present = [cl for cl in self.availble_classes if ind in self.contains_bias_list[cl]]
-                cl = np.random.choice(classes_present)
-                return ind, cl
+                classes_present = [cl for cl in self.availble_classes if local_ind in self.contains_bias_list[cl]]
+                if len(classes_present) > 0:
+                    cl = np.random.choice(classes_present)
+                    return local_ind, cl
+                else:
+                    return local_ind, -1
             else:
                 # for the other sampling schemes this is enough
                 if len(self.availble_classes) > 0:
                     cl = np.random.choice(self.availble_classes)
-                    return np.random.choice(self.contains_bias_list[cl]), cl
+                    if len(self.contains_bias_list[cl]) > 0:
+                        return np.random.choice(self.contains_bias_list[cl]), cl
+                    else:
+                        return np.random.randint(len(self.volume_indices)), -1
                 else:
-                    return np.random.randint(self.n_volumes), -1
+                    return np.random.randint(len(self.volume_indices)), -1
         else:
             # when we do no biased sampling we just pick the volume
             # uniform at random
-            return np.random.randint(self.n_volumes), -1
+            return np.random.randint(len(self.volume_indices)), -1
 
     def __len__(self):
         return self.epoch_len * self.batch_size
 
     def __getitem__(self, index):
-
         if index % self.batch_size < self.min_biased_samples:
             biased_sampling = True
         else:
             biased_sampling = np.random.rand() < self.p_bias_sampling
 
-        ind, cl = self._get_random_volume_ind(biased_sampling)
-        volumes = self._get_volume_tuple(ind)
+        local_ind, cl = self._get_random_volume_ind(biased_sampling)
+        volumes = self._get_volume_tuple_by_local_index(local_ind)
         shape = np.array(volumes[0].shape)[1:]
 
-        if biased_sampling and cl >= 0:
+        if biased_sampling and cl >= 0 and len(self.bias_coords_list) > local_ind:
             # let's get the list of bias coordinates from RAM
-            coords = self.bias_coords_list[ind][cl]
+            coords = self.bias_coords_list[local_ind][cl]
             
             # pick a random item from the list and compute the upper left corner of the patch
             n_coords = coords.shape[1]
-            coord = coords[:, np.random.randint(n_coords)] - self.patch_size//2
+            if n_coords > 0:
+                coord = coords[:, np.random.randint(n_coords)] - self.patch_size//2
+            else:
+                coord = np.random.randint(np.maximum(shape - self.patch_size+1, 1))
         else:
             
-            if self.has_mask:
+            if self.has_mask and len(self.mask_coords_list) > local_ind:
                 # let's get the list of bias coordinates from RAM
-                coords = self.mask_coords_list[ind]
+                coords = self.mask_coords_list[local_ind]
                 
                 # pick a random item from the list and compute the upper left corner of the patch
                 n_coords = coords.shape[1]
-                coord = coords[:, np.random.randint(n_coords)] - self.patch_size//2
+                if n_coords > 0:
+                    coord = coords[:, np.random.randint(n_coords)] - self.patch_size//2
+                else:
+                    coord = np.random.randint(np.maximum(shape - self.patch_size+1, 1))
             else:
                 # random coordinate uniform from the whole volume
                 coord = np.random.randint(np.maximum(shape - self.patch_size+1, 1))
+                
         coord = np.minimum(np.maximum(coord, 0), shape - self.patch_size)
         # now get the cropped and padded sample
 

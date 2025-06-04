@@ -417,7 +417,6 @@ def get_3d_UNet(in_channels, out_channels, n_stages, n_2d_blocks, filters=32):
 
 # %%
 if __name__ == '__main__':
-    gpu = torch.device('cuda:0')
     net_2d = get_2d_UNet(1, 2, 7, 8).to(gpu)
     xb_2d = torch.randn((3, 1, 512, 512), device=gpu)
     print('2d')
