@@ -3,11 +3,11 @@ from ovseg.model.SegmentationEnsembleV2 import SegmentationEnsembleV2
 from ovseg.model.model_parameters_segmentation import get_model_params_3d_UNet,get_model_params_3d_res_encoder_U_Net ,get_model_params_3d_from_preprocessed_folder
 import os
 # name of your raw dataset
-data_name = 'YES'
+data_name = 'test'
 # same name as in the preprocessing script
 preprocessed_name = 'preprocessed'
 # give each model a unique name. This way the code will be able to identify them
-model_name = 'pagnoux'
+model_name = 'pagnoux_____2'
 # which fold of the training is performed?
 # Example 5-fold cross-vadliation: CV folds are 0,1,...,4.
 #                                  For each val_fold > 4 no CV is applied and 

@@ -22,10 +22,11 @@ class SegmentationTraining(NetworkTraining):
                  stop_after_epochs=[],
                  distributed=False,
                  **kwargs):
-        
-        self.distributed = distributed
+        # Distributed training parameters
         self.rank = 0 if not distributed else dist.get_rank()
+        self.distributed = distributed
         self.world_size = 1 if not distributed else dist.get_world_size()
+        
         super().__init__(*args, **kwargs)
         self.prg_trn_sizes = prg_trn_sizes
         self.prg_trn_arch_params = prg_trn_arch_params
@@ -35,8 +36,6 @@ class SegmentationTraining(NetworkTraining):
         self.batches_have_masks = batches_have_masks
         self.mask_with_bin_pred = mask_with_bin_pred
         self.stop_after_epochs = stop_after_epochs
-        # Distributed training parameters
-
         # now have fun with progressive training!
         self.do_prg_trn = self.prg_trn_sizes is not None
         if self.do_prg_trn:
@@ -308,10 +307,10 @@ class SegmentationTraining(NetworkTraining):
         if self.rank == 0:
             super().print_and_log(message, level)
 
-    def save_checkpoint(self, epoch):
+    def save_checkpoint(self):
         """Only save checkpoint on rank 0."""
         if self.rank == 0:
-            super().save_checkpoint(epoch)
+            super().save_checkpoint()
 
     def on_epoch_end(self):
         if self.distributed:

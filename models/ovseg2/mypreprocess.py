@@ -3,7 +3,7 @@ from ovseg import OV_PREPROCESSED
 import os
 
 # name of your raw dataset
-data_name = 'YES'
+data_name = 'test'
 # name after preprocessing
 preprocessed_name = 'preprocessed'
 
