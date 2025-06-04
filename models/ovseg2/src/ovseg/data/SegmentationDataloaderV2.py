@@ -12,8 +12,6 @@ except ModuleNotFoundError:
 
 import torch.distributed as dist
 
-
-
 class SegmentationBatchDatasetV2(object):
 
     def __init__(self, vol_ds, patch_size, batch_size, epoch_len=250, p_bias_sampling=0,
@@ -44,16 +42,24 @@ class SegmentationBatchDatasetV2(object):
         if self.distributed:
             # Each GPU processes a subset of volumes
             total_volumes = len(self.vol_ds)
-            volumes_per_gpu = total_volumes // self.world_size
-            start_idx = self.rank * volumes_per_gpu
-            
-            if self.rank == self.world_size - 1:  # Last GPU gets remaining volumes
-                end_idx = total_volumes
+            if total_volumes < self.world_size:
+                # If fewer volumes than GPUs, replicate volumes
+                print("total_volumes"+ str(total_volumes))
+                print("self.rank"+ str(self.rank))
+                self.volume_indices = [self.rank % total_volumes]
+                print(f"Rank {self.rank}: Processing volume {self.volume_indices[0]} (replicated due to few volumes)")
             else:
-                end_idx = start_idx + volumes_per_gpu
-            
-            self.volume_indices = list(range(start_idx, end_idx))
-            print(f"Rank {self.rank}: Processing volumes {start_idx} to {end_idx-1} ({len(self.volume_indices)} volumes)")
+                # Distribute volumes more evenly
+                volumes_per_gpu = max(1, total_volumes // self.world_size)
+                start_idx = self.rank * volumes_per_gpu
+                
+                if self.rank == self.world_size - 1:
+                    end_idx = total_volumes
+                else:
+                    end_idx = min(start_idx + volumes_per_gpu, total_volumes)
+                
+                self.volume_indices = list(range(start_idx, end_idx))
+                print(f"Rank {self.rank}: Processing volumes {start_idx} to {end_idx-1} ({len(self.volume_indices)} volumes)")
         else:
             self.volume_indices = list(range(len(self.vol_ds)))
         

@@ -65,7 +65,7 @@ def train_worker(rank, world_size, model_params, data_name, model_name, preproce
         # Wrap with DistributedDataParallel
         model.network = DDP(
             model.network,
-            device_ids=[0,1],
+            device_ids=[rank],
             output_device=rank,
             find_unused_parameters=False  # Set to True if you have unused parameters
         )
