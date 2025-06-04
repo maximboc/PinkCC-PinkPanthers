@@ -189,7 +189,7 @@ if val_fold < model_params['data']['n_folds']:
 # ens.eval_raw_dataset('MY_TEST_DATA')
 
 
-def create_model(val_fold, data_name, model_name, preprocessed_name, model_params, distributed=False):
+def create_model(val_fold, data_name, model_name, preprocessed_name, model_params, distributed=True):
     """Create model with optional distributed support."""
     
     # Modify data loader parameters for distributed training

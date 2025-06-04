@@ -18,7 +18,7 @@ class SegmentationBatchDatasetV2(object):
                  min_biased_samples=1, augmentation=None, padded_patch_size=None,
                  n_im_channels: int = 1, p_weighted_volume_sampling=0,
                  store_data_in_ram=False, return_fp16=True, n_max_volumes=None,
-                 bias='fg', n_fg_classes=None, distributed=False, rank=0, world_size=1,*args, **kwargs):
+                 bias='fg', n_fg_classes=None, distributed=True, rank=0, world_size=1,*args, **kwargs):
         self.vol_ds = vol_ds
         self.patch_size = np.array(patch_size)
         self.batch_size = batch_size
@@ -391,7 +391,7 @@ class SegmentationBatchDatasetV2(object):
 
 
 def SegmentationDataloaderV2(vol_ds, patch_size, batch_size, num_workers=None,
-                           pin_memory=True, epoch_len=250, distributed=False, *args, **kwargs):
+                           pin_memory=True, epoch_len=250, distributed=True, *args, **kwargs):
     # Adjust epoch_len and batch_size for distributed training
     if distributed:
         world_size = dist.get_world_size()
@@ -409,7 +409,7 @@ def SegmentationDataloaderV2(vol_ds, patch_size, batch_size, num_workers=None,
         kwargs['world_size'] = world_size
     
     dataset = SegmentationBatchDatasetV2(vol_ds=vol_ds, patch_size=patch_size, batch_size=batch_size,
-                                       epoch_len=epoch_len, *args, **kwargs)
+                                       epoch_len=epoch_len, distributed=distributed, *args, **kwargs)
     
     if num_workers is None:
         num_workers = 0 if os.name == 'nt' else 5

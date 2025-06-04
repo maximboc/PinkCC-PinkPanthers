@@ -4,9 +4,11 @@ from ovseg.data.SegmentationDataloaderV2 import SegmentationDataloaderV2
 
 class SegmentationDataV2(DataBase):
 
-    def __init__(self, augmentation=None, use_double_bias=False, *args, **kwargs):
+    def __init__(self, augmentation=None, use_double_bias=False,distributed=True, *args, **kwargs, 
+                 ):
         self.augmentation = augmentation
         self.use_double_bias = use_double_bias
+        self.distributed = distributed
         super().__init__(*args, **kwargs)
 
     def initialise_dataloader(self, is_train):
@@ -15,12 +17,14 @@ class SegmentationDataV2(DataBase):
             
             self.trn_dl = SegmentationDataloaderV2(self.trn_ds,
                                                    augmentation=self.augmentation,
+                                                   distributed=self.distributed,
                                                    **self.trn_dl_params)
         else:
             print('Initialise validation dataloader')
             try:
                 self.val_dl = SegmentationDataloaderV2(self.val_ds,
                                                        augmentation=self.augmentation,
+                                                       distributed=self.distributed,
                                                        **self.val_dl_params)
                     
             except (AttributeError, TypeError):

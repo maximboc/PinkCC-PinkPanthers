@@ -9,6 +9,7 @@ import argparse
 import copy
 import sys
 from ovseg.model.SegmentationModelV2 import SegmentationModelV2
+from mytraining import create_model
 
 
 def setup(rank, world_size, port='12355'):
@@ -46,12 +47,13 @@ def train_worker(rank, world_size, model_params, data_name, model_name, preproce
         print(f"Rank {rank}: Creating model...")
         
         # Create model
-        model = SegmentationModelV2(
+        model = create_model(
             val_fold=val_fold,
-            data_name=data_name,  
-            model_name=f"{model_name}_rank{rank}",  # Unique name per rank
+            data_name=data_name,
+            model_name=model_name,
             preprocessed_name=preprocessed_name,
-            model_parameters=model_params
+            model_params=model_params,
+            distributed=True  # Indicate that this is a distributed setup
         )
         
         print(f"Rank {rank}: Moving model to GPU...")
@@ -63,13 +65,24 @@ def train_worker(rank, world_size, model_params, data_name, model_name, preproce
         print(f"Rank {rank}: Wrapping with DDP...")
         
         # Wrap with DistributedDataParallel
-        model.network = DDP(
+        ddp_network = DDP(
             model.network,
             device_ids=[rank],
             output_device=rank,
             find_unused_parameters=False  # Set to True if you have unused parameters
         )
+        model.network = ddp_network
+        # CRITICAL: Update the training object's network reference
+        if hasattr(model, 'training') and hasattr(model.training, 'network'):
+            model.training.network = ddp_network
         
+        # Also update any other objects that might hold network references
+        if hasattr(model, 'prediction') and hasattr(model.prediction, 'network'):
+            model.prediction.network = ddp_network
+            
+        if hasattr(model, 'postprocessing') and hasattr(model.postprocessing, 'network'):
+            model.postprocessing.network = ddp_network
+
         # Ensure training object knows about distributed setup
         if hasattr(model.training, '__dict__'):
             model.training.distributed = True

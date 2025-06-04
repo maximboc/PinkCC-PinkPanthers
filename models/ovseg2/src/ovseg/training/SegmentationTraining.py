@@ -20,7 +20,7 @@ class SegmentationTraining(NetworkTraining):
                  batches_have_masks=False,
                  mask_with_bin_pred=False,
                  stop_after_epochs=[],
-                 distributed=False,
+                 distributed=True,
                  **kwargs):
         # Distributed training parameters
         self.rank = 0 if not distributed else dist.get_rank()

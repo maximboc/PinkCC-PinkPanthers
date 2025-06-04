@@ -244,6 +244,7 @@ class SegmentationModel(ModelBase):
                                                  model_path=self.model_path,
                                                  network_name=self.network_name,
                                                  augmentation=self.augmentation.torch_augmentation,
+                                                 distributed=self.model_parameters['training'].get('distributed', False),
                                                  **params)
 
     def __call__(self, data_tpl, do_postprocessing=True):

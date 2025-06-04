@@ -75,6 +75,7 @@ class SegmentationModelV2(SegmentationModel):
         self.data = SegmentationDataV2(val_fold=self.val_fold,
                                        preprocessed_path=self.preprocessed_path,
                                        augmentation= self.augmentation.np_augmentation,
+                                       distributed=self.distributed,
                                        **params)
         print('Data initialised')
 
