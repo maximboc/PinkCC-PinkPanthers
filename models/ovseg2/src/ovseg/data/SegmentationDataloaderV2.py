@@ -20,7 +20,7 @@ class SegmentationBatchDatasetV2(object):
                  min_biased_samples=1, augmentation=None, padded_patch_size=None,
                  n_im_channels: int = 1, p_weighted_volume_sampling=0,
                  store_data_in_ram=False, return_fp16=True, n_max_volumes=None,
-                 bias='fg', n_fg_classes=None, *args, **kwargs):
+                 bias='fg', n_fg_classes=None, distributed=False, rank=0, world_size=1,*args, **kwargs):
         self.vol_ds = vol_ds
         self.patch_size = np.array(patch_size)
         self.batch_size = batch_size
@@ -34,6 +34,28 @@ class SegmentationBatchDatasetV2(object):
         self.return_fp16 = return_fp16
         self.bias = bias
         self.n_fg_classes = n_fg_classes
+        
+
+        # Distributed training parameters
+        self.distributed = distributed
+        self.rank = rank
+        self.world_size = world_size
+                # Adjust volume selection for distributed training
+        if self.distributed:
+            # Each GPU processes a subset of volumes
+            total_volumes = len(self.vol_ds)
+            volumes_per_gpu = total_volumes // self.world_size
+            start_idx = self.rank * volumes_per_gpu
+            
+            if self.rank == self.world_size - 1:  # Last GPU gets remaining volumes
+                end_idx = total_volumes
+            else:
+                end_idx = start_idx + volumes_per_gpu
+            
+            self.volume_indices = list(range(start_idx, end_idx))
+            print(f"Rank {self.rank}: Processing volumes {start_idx} to {end_idx-1} ({len(self.volume_indices)} volumes)")
+        else:
+            self.volume_indices = list(range(len(self.vol_ds)))
         
         if self.bias in ['cl_fg', 'error']:
             assert isinstance(self.n_fg_classes, int)
@@ -334,27 +356,40 @@ class SegmentationBatchDatasetV2(object):
 
 def SegmentationDataloaderV2(vol_ds, patch_size, batch_size, num_workers=None,
                            pin_memory=True, epoch_len=250, distributed=False, *args, **kwargs):
+    # Adjust epoch_len and batch_size for distributed training
+    if distributed:
+        world_size = dist.get_world_size()
+        rank = dist.get_rank()
+        
+        # Each GPU processes a subset of the epoch
+        epoch_len = epoch_len // world_size
+        
+        # Ensure we have at least some samples per GPU
+        epoch_len = max(epoch_len, 1)
+        
+        # Pass distributed info to dataset
+        kwargs['distributed'] = True
+        kwargs['rank'] = rank
+        kwargs['world_size'] = world_size
+    
     dataset = SegmentationBatchDatasetV2(vol_ds=vol_ds, patch_size=patch_size, batch_size=batch_size,
                                        epoch_len=epoch_len, *args, **kwargs)
+    
     if num_workers is None:
         num_workers = 0 if os.name == 'nt' else 5
     
-    worker_init_fn = lambda _: np.random.seed()
+    # For distributed training, we need to ensure different random seeds per worker
+    def worker_init_fn(worker_id):
+        if distributed:
+            np.random.seed(np.random.get_state()[1][0] + worker_id + dist.get_rank() * 1000)
+        else:
+            np.random.seed(np.random.get_state()[1][0] + worker_id)
     
-    # Use DistributedSampler for distributed training
-    if distributed:
-        sampler = torch.utils.data.distributed.DistributedSampler(
-            range(batch_size * epoch_len),
-            num_replicas=dist.get_world_size(),
-            rank=dist.get_rank(),
-            shuffle=True
-        )
-    else:
-        sampler = torch.utils.data.SequentialSampler(range(batch_size * epoch_len))
-    
+    # Don't use DistributedSampler for this custom dataset - handle distribution in the dataset itself
     return torch.utils.data.DataLoader(dataset,
-                                       sampler=sampler,
                                        batch_size=batch_size,
+                                       shuffle=False,  # Dataset handles its own randomization
                                        pin_memory=pin_memory,
                                        num_workers=num_workers,
-                                       worker_init_fn=worker_init_fn)
+                                       worker_init_fn=worker_init_fn,
+                                       drop_last=False)

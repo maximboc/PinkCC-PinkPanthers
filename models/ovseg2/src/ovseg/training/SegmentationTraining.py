@@ -22,6 +22,10 @@ class SegmentationTraining(NetworkTraining):
                  stop_after_epochs=[],
                  distributed=False,
                  **kwargs):
+        
+        self.distributed = distributed
+        self.rank = 0 if not distributed else dist.get_rank()
+        self.world_size = 1 if not distributed else dist.get_world_size()
         super().__init__(*args, **kwargs)
         self.prg_trn_sizes = prg_trn_sizes
         self.prg_trn_arch_params = prg_trn_arch_params
@@ -32,9 +36,6 @@ class SegmentationTraining(NetworkTraining):
         self.mask_with_bin_pred = mask_with_bin_pred
         self.stop_after_epochs = stop_after_epochs
         # Distributed training parameters
-        self.distributed = distributed
-        self.rank = 0 if not distributed else dist.get_rank()
-        self.world_size = 1 if not distributed else dist.get_world_size()
 
         # now have fun with progressive training!
         self.do_prg_trn = self.prg_trn_sizes is not None
