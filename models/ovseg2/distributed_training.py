@@ -71,17 +71,29 @@ def train_worker(rank, world_size, model_params, data_name, model_name, preproce
             output_device=rank,
             find_unused_parameters=False  # Set to True if you have unused parameters
         )
+        # Create a helper function to safely access model attributes
+        def get_model_attr(network, attr_name):
+            if hasattr(network, 'module'):
+                return getattr(network.module, attr_name)
+            else:
+                return getattr(network, attr_name)
+        original_network = model.network
         model.network = ddp_network
         # CRITICAL: Update the training object's network reference
         if hasattr(model, 'training') and hasattr(model.training, 'network'):
             model.training.network = ddp_network
+            model.training.get_model_attr = lambda attr: get_model_attr(ddp_network, attr)
         
         # Also update any other objects that might hold network references
         if hasattr(model, 'prediction') and hasattr(model.prediction, 'network'):
             model.prediction.network = ddp_network
+            model.prediction.get_model_attr = lambda attr: get_model_attr(ddp_network, attr)
+
             
         if hasattr(model, 'postprocessing') and hasattr(model.postprocessing, 'network'):
             model.postprocessing.network = ddp_network
+            model.postprocessing.get_model_attr = lambda attr: get_model_attr(ddp_network, attr)
+
 
         # Ensure training object knows about distributed setup
         if hasattr(model.training, '__dict__'):

@@ -67,7 +67,7 @@ class SegmentationTraining(NetworkTraining):
 
     def initialise_loss(self):
         self.loss_fctn = CE_dice_pyramid_loss(**self.loss_params)
-
+    """
     def compute_batch_loss(self, batch):
 
         batch = batch.cuda()
@@ -116,7 +116,33 @@ class SegmentationTraining(NetworkTraining):
         loss = self.loss_fctn(out, yb, mask)
 
         return loss
+    """
+    def compute_batch_loss(self, batch):
+        batch = batch.cuda()
+        batch = self.prg_trn_process_batch(batch)
 
+        # Extract input and target from batch
+        xb = batch[:self.n_im_channels]
+        yb = batch[self.n_im_channels:]
+
+        # Forward pass
+        pred = self.network(xb)
+
+        # Get out_channels safely
+        if hasattr(self, 'get_model_attr'):
+            out_channels = self.get_model_attr('out_channels')
+        elif hasattr(self.network, 'module'):
+            out_channels = self.network.module.out_channels
+        else:
+            out_channels = self.network.out_channels
+
+        # Convert target to one-hot encoding
+        yb = to_one_hot_encoding(yb, out_channels)
+
+        # Compute loss
+        loss = self.loss_fctn(pred, yb)
+        
+        return loss
     def prg_trn_update_parameters(self):
 
         if self.epochs_done == self.num_epochs:
