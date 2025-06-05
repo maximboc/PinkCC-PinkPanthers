@@ -75,7 +75,7 @@ params.update({
 })
 
 model_params["data"] = {
-    "n_folds": 1,
+    "n_folds": 10,
     "fixed_shuffle": True,
     "ds_params": {},
     "trn_dl_params": {
