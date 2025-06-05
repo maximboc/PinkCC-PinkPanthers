@@ -20,6 +20,9 @@ class SegmentationTraining(NetworkTraining):
                  batches_have_masks=False,
                  mask_with_bin_pred=False,
                  stop_after_epochs=[],
+                 early_stopping_patience=10,
+                 early_stopping_min_delta=0.001,
+                 early_stopping_metric='val_loss',
                  distributed=True,
                  **kwargs):
         # Distributed training parameters
@@ -36,6 +39,18 @@ class SegmentationTraining(NetworkTraining):
         self.batches_have_masks = batches_have_masks
         self.mask_with_bin_pred = mask_with_bin_pred
         self.stop_after_epochs = stop_after_epochs
+
+         # Early stopping parameters
+        self.early_stopping_patience = early_stopping_patience
+        self.early_stopping_min_delta = early_stopping_min_delta
+        self.early_stopping_metric = early_stopping_metric
+
+        # Early stopping state
+        if self.early_stopping_patience is not None:
+            self.best_metric_value = None
+            self.patience_counter = 0
+            self.early_stopped = False
+        
         # now have fun with progressive training!
         self.do_prg_trn = self.prg_trn_sizes is not None
         if self.do_prg_trn:
@@ -327,6 +342,36 @@ class SegmentationTraining(NetworkTraining):
         if self.distributed:
             dist.barrier()
         super().on_epoch_end()
+
+        # Early stopping check
+        if self.early_stopping_patience is not None and not self.early_stopped:
+            # Get the current metric value
+            if self.early_stopping_metric == 'val_loss':
+                current_metric = self.val_losses[-1] if hasattr(self, 'val_losses') else None
+                # For loss, lower is better
+                is_better = lambda current, best: current < (best - self.early_stopping_min_delta)
+                self.print_and_log(f'Checking early stopping with metric: {self.early_stopping_metric}')
+            else:
+                current_metric = None
+                self.print_and_log(f'Unknown early stopping metric: {self.early_stopping_metric}')
+
+            if current_metric is not None and not np.isnan(current_metric):
+                if self.best_metric_value is None:
+                    self.best_metric_value = current_metric
+                    self.patience_counter = 0
+                elif is_better(current_metric, self.best_metric_value):
+                    self.best_metric_value = current_metric
+                    self.patience_counter = 0
+                    self.print_and_log(f'Early stopping: new best {self.early_stopping_metric}: {current_metric:.6f}')
+                else:
+                    self.patience_counter += 1
+                    self.print_and_log(f'Early stopping: patience {self.patience_counter}/{self.early_stopping_patience}')
+
+                    if self.patience_counter >= self.early_stopping_patience:
+                        self.early_stopped = True
+                        self.stop_training = True
+                        self.print_and_log(f'Early stopping triggered after {self.patience_counter} epochs without improvement')
+
         if self.do_prg_trn:
             # if we do progressive training we update the parameters....
             if self.epochs_done % self.prg_trn_epochs_per_stage == 0:
