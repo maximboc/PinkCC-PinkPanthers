@@ -19,6 +19,9 @@ class SegmentationTraining(NetworkTraining):
                  batches_have_masks=False,
                  mask_with_bin_pred=False,
                  stop_after_epochs=[],
+                 early_stopping_patience=10,
+                 early_stopping_min_delta=0.001,
+                 early_stopping_metric='val_loss',
                  **kwargs):
         super().__init__(*args, **kwargs)
         self.prg_trn_sizes = prg_trn_sizes
@@ -29,6 +32,17 @@ class SegmentationTraining(NetworkTraining):
         self.batches_have_masks = batches_have_masks
         self.mask_with_bin_pred = mask_with_bin_pred
         self.stop_after_epochs = stop_after_epochs
+
+        # Early stopping parameters
+        self.early_stopping_patience = early_stopping_patience
+        self.early_stopping_min_delta = early_stopping_min_delta
+        self.early_stopping_metric = early_stopping_metric
+
+        # Early stopping state
+        if self.early_stopping_patience is not None:
+            self.best_metric_value = None
+            self.patience_counter = 0
+            self.early_stopped = False
 
         # now have fun with progressive training!
         self.do_prg_trn = self.prg_trn_sizes is not None
