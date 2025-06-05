@@ -12,6 +12,16 @@ except ModuleNotFoundError:
 
 import torch.distributed as dist
 
+# Move worker_init_fn to module level so it can be pickled
+def distributed_worker_init_fn(worker_id):
+    """Worker initialization function for distributed training."""
+    if dist.is_initialized():
+        seed = torch.initial_seed() % 2**32 + dist.get_rank() * 1000 + worker_id
+    else:
+        seed = torch.initial_seed() % 2**32 + worker_id
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+
 class SegmentationBatchDatasetV2(object):
 
     def __init__(self, vol_ds, patch_size, batch_size, epoch_len=250, p_bias_sampling=0,
@@ -393,34 +403,35 @@ class SegmentationBatchDatasetV2(object):
 def SegmentationDataloaderV2(vol_ds, patch_size, batch_size, num_workers=None,
                            pin_memory=True, epoch_len=250, distributed=True, *args, **kwargs):
     # Adjust epoch_len and batch_size for distributed training
-    if distributed:
-        world_size = dist.get_world_size()
+    if distributed and dist.is_initialized():
         rank = dist.get_rank()
+        world_size = dist.get_world_size()
         
-        # Each GPU processes a subset of the epoch
-        epoch_len = epoch_len // world_size
-        
-        # Ensure we have at least some samples per GPU
-        epoch_len = max(epoch_len, 1)
-        
-        # Pass distributed info to dataset
-        kwargs['distributed'] = True
+        # Pass rank and world_size to dataset
         kwargs['rank'] = rank
         kwargs['world_size'] = world_size
-    
+    elif distributed:
+        # Distributed flag is set but not initialized - disable it
+        print("Warning: distributed=True but torch.distributed not initialized. Running single GPU mode.")
+        distributed = False
+        kwargs['rank'] = 0
+        kwargs['world_size'] = 1
+    else:
+        kwargs['rank'] = 0
+        kwargs['world_size'] = 1
+
     dataset = SegmentationBatchDatasetV2(vol_ds=vol_ds, patch_size=patch_size, batch_size=batch_size,
-                                       epoch_len=epoch_len, distributed=distributed, *args, **kwargs)
+                                       epoch_len=epoch_len, *args, **kwargs)
     
     if num_workers is None:
-        num_workers = 0 if os.name == 'nt' else 5
-    
-    # For distributed training, we need to ensure different random seeds per worker
-    def worker_init_fn(worker_id):
-        if distributed:
-            np.random.seed(np.random.get_state()[1][0] + worker_id + dist.get_rank() * 1000)
+        if distributed and dist.is_initialized():
+            num_workers = 0  # Disable multiprocessing for distributed training
         else:
-            np.random.seed(np.random.get_state()[1][0] + worker_id)
-    
+            num_workers = 2
+
+    # For distributed training, we need to ensure different random seeds per worker
+    worker_init_fn = distributed_worker_init_fn if num_workers > 0 else None
+
     # Don't use DistributedSampler for this custom dataset - handle distribution in the dataset itself
     return torch.utils.data.DataLoader(dataset,
                                        batch_size=batch_size,

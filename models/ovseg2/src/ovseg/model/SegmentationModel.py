@@ -38,8 +38,9 @@ class SegmentationModel(ModelBase):
                  model_parameters=None, preprocessed_name=None,
                  network_name='network', is_inference_only: bool = False,
                  fmt_write='{:.4f}', model_parameters_name='model_parameters',
-                 plot_n_random_slices=1, dont_store_data_in_ram=False):
+                 plot_n_random_slices=1, dont_store_data_in_ram=False, distributed=True):
         self.dont_store_data_in_ram = dont_store_data_in_ram
+        self.distributed=distributed
         super().__init__(val_fold=val_fold, data_name=data_name, model_name=model_name,
                          model_parameters=model_parameters, preprocessed_name=preprocessed_name,
                          network_name=network_name, is_inference_only=is_inference_only,
@@ -244,7 +245,7 @@ class SegmentationModel(ModelBase):
                                                  model_path=self.model_path,
                                                  network_name=self.network_name,
                                                  augmentation=self.augmentation.torch_augmentation,
-                                                 distributed=self.model_parameters['training'].get('distributed', False),
+                                                 distributed=True,
                                                  **params)
 
     def __call__(self, data_tpl, do_postprocessing=True):

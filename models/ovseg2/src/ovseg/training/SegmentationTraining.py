@@ -82,7 +82,18 @@ class SegmentationTraining(NetworkTraining):
             # with the last channel of the input tensor
             mask = mask * xb[: -1:]      
 
-        yb = to_one_hot_encoding(yb, self.network.out_channels)
+        
+        # Handle DDP wrapper - access out_channels through module attribute
+        if hasattr(self.network, 'module'):
+            # This is a DDP wrapped model
+            out_channels = self.network.module.out_channels
+        else:
+            # This is a regular model
+            out_channels = self.network.out_channels
+
+        # Convert target to one-hot encoding
+        yb = to_one_hot_encoding(yb, out_channels)
+
         
         # Handle DDP wrapper
         network = self.network.module if hasattr(self.network, 'module') else self.network

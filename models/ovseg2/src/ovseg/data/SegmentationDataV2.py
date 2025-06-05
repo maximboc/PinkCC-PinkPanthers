@@ -17,14 +17,14 @@ class SegmentationDataV2(DataBase):
             
             self.trn_dl = SegmentationDataloaderV2(self.trn_ds,
                                                    augmentation=self.augmentation,
-                                                   distributed=self.distributed,
+                                                   #distributed=self.distributed,
                                                    **self.trn_dl_params)
         else:
             print('Initialise validation dataloader')
             try:
                 self.val_dl = SegmentationDataloaderV2(self.val_ds,
                                                        augmentation=self.augmentation,
-                                                       distributed=self.distributed,
+                                                       #distributed=self.distributed,
                                                        **self.val_dl_params)
                     
             except (AttributeError, TypeError):

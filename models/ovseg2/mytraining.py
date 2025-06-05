@@ -7,7 +7,7 @@ data_name = 'test'
 # same name as in the preprocessing script
 preprocessed_name = 'preprocessed'
 # give each model a unique name. This way the code will be able to identify them
-model_name = 'pagnoux_____2'
+model_name = 'pagnoux51'
 # which fold of the training is performed?
 # Example 5-fold cross-vadliation: CV folds are 0,1,...,4.
 #                                  For each val_fold > 4 no CV is applied and 
@@ -129,7 +129,7 @@ model_params["prediction"] = {
 # CHANGE YOUR HYPER-PARAMETERS HERE! For example
 
 # change batch size to 4
-#model_params['data']['trn_dl_params']['batch_size'] = 4
+#model_params['data']['trn_dl_params']['batch_size'] = 8
 #model_params['data']['val_dl_params']['batch_size'] = 4
 # change momentum
 #model_params['training']['opt_params']['momentum'] = 0.98
@@ -152,10 +152,12 @@ model_params['training']['num_epochs'] = 150
 
 model_params['preprocessed_path'] = "/home/user-data_challenge-33/data/preprocessed/SAMPLE/test_preprocessing"
 
-print(model_params)
+if __name__ == "main":
+
+    print(model_params)
 
 
-model = SegmentationModelV2(val_fold=val_fold,
+    model = SegmentationModelV2(val_fold=val_fold,
                             data_name=data_name,
                             model_name=model_name,
                     
@@ -163,18 +165,18 @@ model = SegmentationModelV2(val_fold=val_fold,
                             model_parameters=model_params)
 
 
-# execute the trainig, simple as that!
-# It will check for previous checkpoints and load them
-print(f"Training script")
-model.training.train()
+    # execute the trainig, simple as that!
+    # It will check for previous checkpoints and load them
+    print(f"Training script")
+    model.training.train()
 
-# if cross-validation is applied you can evaluate the validation scans like this
-# as stated above, val_fold > n_folds means using 100% training data e.g. no validation data
-if val_fold < model_params['data']['n_folds']:
-    model.eval_validation_set()
+    # if cross-validation is applied you can evaluate the validation scans like this
+    # as stated above, val_fold > n_folds means using 100% training data e.g. no validation data
+    if val_fold < model_params['data']['n_folds']:
+        model.eval_validation_set()
 
-# uncomment to evaluate raw (test) dataset with the model
-# model.eval_raw_dataset('MY_TEST_DATA')
+    # uncomment to evaluate raw (test) dataset with the model
+    # model.eval_raw_dataset('MY_TEST_DATA')
 
 
 # uncomment to evaluate ensemble e.g. of cross-validation models
