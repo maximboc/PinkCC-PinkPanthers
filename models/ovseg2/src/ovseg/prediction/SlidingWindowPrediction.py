@@ -118,7 +118,6 @@ class SlidingWindowPrediction(object):
             raise TypeError('Input must be torch tensor')
         if not len(volume.shape) == 4:
             raise ValueError('Volume must be a 4d tensor (incl channel axis)')
-        
         if hasattr(self, 'get_model_attr'):
             out_channels = self.get_model_attr('out_channels')
         elif hasattr(self.network, 'module'):
