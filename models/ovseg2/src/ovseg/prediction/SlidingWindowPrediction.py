@@ -118,7 +118,12 @@ class SlidingWindowPrediction(object):
             raise TypeError('Input must be torch tensor')
         if not len(volume.shape) == 4:
             raise ValueError('Volume must be a 4d tensor (incl channel axis)')
-
+        if hasattr(self.network, 'module'):
+            # This is a DDP wrapped model
+            out_channels = self.network.module.out_channels
+        else:
+            # This is a regular model
+            out_channels = self.network.out_channels
         # in case the volume is smaller than the patch size we pad it
         # and save the input size to crop again before returning
         shape_in = np.array(volume.shape)
@@ -131,7 +136,7 @@ class SlidingWindowPrediction(object):
         shape = volume.shape[1:]
 
         # %% reserve storage
-        pred = torch.zeros((self.network.out_channels, *shape),
+        pred = torch.zeros((out_channels, *shape),
                            device=self.dev,
                            dtype=torch.float)
         # this is for the voxel where we have no prediction in the end
