@@ -137,7 +137,7 @@ model_params["prediction"] = {
 #model_params['training']['opt_params']['weight_decay'] = wd
 model_params['training']['prg_trn_sizes'] =  [[ 20 ,256, 256],[ 22, 304 ,304],[ 30 ,384, 384],[ 32 ,432, 432]]
 model_params['training']['prg_trn_resize_on_the_fly'] = False
-model_params['training']['num_epochs'] = 150
+model_params['training']['num_epochs'] = 5
 
 # creat model object.
 # this object holds all objects that define a deep neural network model
