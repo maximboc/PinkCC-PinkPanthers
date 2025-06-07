@@ -18,7 +18,8 @@ setup(
             "scipy",
             "numpy",
             "nibabel",
-	    "rt_utils"
+	    "rt_utils",
+        "matplotlib"
       ],
     entry_points={'console_scripts': ['ovseg_inference = ovseg.run.run_inference:main']},
     # *strongly* suggested for sharing

@@ -399,6 +399,25 @@ class SegmentationBatchDatasetV2(object):
 
         return volume.astype(self.dtype)
 
+    def set_epoch(self, epoch):
+        """Call this at the beginning of each epoch for proper distributed shuffling."""
+        if self.distributed:
+            # Reshuffle volumes each epoch with a different seed
+            total_volumes = len(self.vol_ds)
+            np.random.seed(42 + epoch)  # Epoch-dependent seed
+            shuffled_indices = np.random.permutation(total_volumes)
+            np.random.seed()  # Reset to random seed
+
+            volumes_per_gpu = total_volumes // self.world_size
+            start_idx = self.rank * volumes_per_gpu
+
+            if self.rank == self.world_size - 1:
+                end_idx = total_volumes
+            else:
+                end_idx = start_idx + volumes_per_gpu
+
+            self.volume_indices = shuffled_indices[start_idx:end_idx].tolist()
+
 
 def SegmentationDataloaderV2(vol_ds, patch_size, batch_size, num_workers=None,
                            pin_memory=True, epoch_len=250, distributed=True, *args, **kwargs):

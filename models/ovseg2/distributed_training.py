@@ -73,7 +73,7 @@ def train_worker(rank, world_size, model_params, data_name, model_name, preproce
             model.network,
             device_ids=[rank],
             output_device=rank,
-            find_unused_parameters=False  # Set to True if you have unused parameters
+            find_unused_parameters=True  # Set to True if you have unused parameters
         )
         # Create a helper function to safely access model attributes
         def get_model_attr(network, attr_name):
@@ -106,9 +106,14 @@ def train_worker(rank, world_size, model_params, data_name, model_name, preproce
             model.training.world_size = world_size
         
         print(f"Rank {rank}: Starting training...")
+        if dist.is_initialized():
+            dist.barrier()
         
         # Start training
         model.training.train()
+
+        if dist.is_initialized():
+            dist.barrier()
         
         # Only rank 0 does validation to avoid conflicts
         if rank == 0 and val_fold < model_params['data']['n_folds']:

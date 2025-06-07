@@ -72,7 +72,7 @@ class SegmentationTraining(NetworkTraining):
 
         batch = batch.cuda()
         batch = self.prg_trn_process_batch(batch)
-
+        
         if self.augmentation is not None:
             with torch.no_grad():
                 # in theory we shouldn't need this context, but I had weird memory leaks and
@@ -114,7 +114,10 @@ class SegmentationTraining(NetworkTraining):
         network = self.network.module if hasattr(self.network, 'module') else self.network
         out = self.network(xb)
         loss = self.loss_fctn(out, yb, mask)
-
+        if self.distributed and dist.is_initialized():
+            torch.distributed.barrier()
+            loss_tensor = loss.clone().detach()
+            dist.all_reduce(loss_tensor, op=dist.ReduceOp.AVG)
         return loss
     """
     def compute_batch_loss(self, batch):
@@ -366,7 +369,7 @@ class SegmentationTraining(NetworkTraining):
             super().save_checkpoint()
 
     def on_epoch_end(self):
-        if self.distributed:
+        if self.distributed and dist.is_initialized():
             dist.barrier()
         super().on_epoch_end()
 

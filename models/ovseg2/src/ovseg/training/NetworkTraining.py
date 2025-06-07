@@ -283,6 +283,9 @@ class NetworkTraining(TrainingBase):
         self.total_epoch_time = -1*perf_counter()
         super().on_epoch_start()
         self.network.train()
+        # Set epoch for distributed training dataset shuffling
+        if hasattr(self, 'trn_dl') and hasattr(self.trn_dl, 'dataset') and hasattr(self.trn_dl.dataset, 'set_epoch'):
+            self.trn_dl.dataset.set_epoch(self.epochs_done)
 
     def on_epoch_end(self):
         super().on_epoch_end()

@@ -79,6 +79,7 @@ class TrainingBase():
         # we're using the stop_training flag to easily allow early stopping in the training
         while not self.stop_training:
 
+            # In your training loop, add this before each epoch:
             self.on_epoch_start()
 
             for step, batch in enumerate(self.trn_dl):

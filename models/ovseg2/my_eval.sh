@@ -18,4 +18,4 @@ echo "Running on: $SLURM_NODELIST"
 
 # Preprocess the data
 echo "Started eval"
-ovseg_inference /home/user-data_challenge-33/data/raw_data/EVAL --models pagnoux
+ovseg_inference /root/train_phase_2/raw_data/test/images/TCGA-09-0367.nii.gz --models pagnoux

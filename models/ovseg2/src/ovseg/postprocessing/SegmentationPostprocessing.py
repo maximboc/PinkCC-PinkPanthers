@@ -94,7 +94,7 @@ class SegmentationPostprocessing(object):
         # first fun step: let's reshape to original size
         # before going to hard labels
         if orig_shape is not None:
-            if np.any(orig_shape != inpt_shape):
+            if np.any(orig_shape != inpt_shape[1:]):
                 orig_shape = np.array(orig_shape)
                 if torch.cuda.is_available():
                     with torch.no_grad():

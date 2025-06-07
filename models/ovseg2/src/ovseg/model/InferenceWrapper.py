@@ -226,7 +226,7 @@ def evaluate_segmentation_model(im,
     # store for later
     orig_shape = im.shape[-3:]
 
-    path_to_preprocess_params = os.path.join('/home/user-data_challenge-33/data/preprocessed/YES/preprocessed/preprocessing_parameters.pkl')
+    path_to_preprocess_params = os.path.join('/root/train_phase_2/preprocessed/test/preprocessed/preprocessing_parameters.pkl')
 
     preprocess_params = load_pkl(path_to_preprocess_params)
 
@@ -267,22 +267,26 @@ def evaluate_segmentation_model(im,
     # iterate over all weights used in the ensemble
     for j, weight_file in enumerate(weight_files):
         print(f'Evaluate network {j+1} out of {len(weight_files)}')
+
         # load weights
-        network.load_state_dict(torch.load(weight_file,
-                                           map_location=device))
-        
-        # full tensor of softmax outputs
-        # pred = torch.zeros((n_ch, nz, nx, ny), device='cuda', dtype=torch.float)
-        # we're using numpy arrays here to prevent OOM errors
+        state_dict = torch.load(weight_file, map_location=device)
+
+        # Fix: Remove 'module.' prefix if present
+        if any(k.startswith('module.') for k in state_dict.keys()):
+            from collections import OrderedDict
+            new_state_dict = OrderedDict()
+            for k, v in state_dict.items():
+                new_state_dict[k[7:]] = v  # Remove 'module.' prefix
+            state_dict = new_state_dict
+
+        network.load_state_dict(state_dict)
+
+        # init prediction array
         pred = np.zeros((n_ch, nz, nx, ny), dtype=np.float32)
-        
-        # for each image in the list, evaluate sliding window and fill in
+
+        # sliding window over each image
         for i, im in enumerate(im_list):            
-            pred[:, i::len(im_list)] = sliding_window(im, 
-                                                      network, 
-                                                      device, 
-                                                      **pred_params)
-        
+            pred[:, i::len(im_list)] = sliding_window(im, network, device,  **pred_params)
         pred_list.append(pred)
     
     # this solution is ugly, but otherwise there might be OOM errors

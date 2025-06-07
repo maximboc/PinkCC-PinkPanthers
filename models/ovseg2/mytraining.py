@@ -7,7 +7,7 @@ data_name = 'test'
 # same name as in the preprocessing script
 preprocessed_name = 'preprocessed'
 # give each model a unique name. This way the code will be able to identify them
-model_name = 'pagnoux51'
+model_name = 'pagnoux_toto1'
 # which fold of the training is performed?
 # Example 5-fold cross-vadliation: CV folds are 0,1,...,4.
 #                                  For each val_fold > 4 no CV is applied and 
@@ -75,7 +75,7 @@ params.update({
 })
 
 model_params["data"] = {
-    "n_folds": 10,
+    "n_folds": 1,
     "fixed_shuffle": True,
     "ds_params": {},
     "trn_dl_params": {
@@ -129,7 +129,7 @@ model_params["prediction"] = {
 # CHANGE YOUR HYPER-PARAMETERS HERE! For example
 
 # change batch size to 4
-#model_params['data']['trn_dl_params']['batch_size'] = 8
+model_params['data']['trn_dl_params']['batch_size'] = 8
 #model_params['data']['val_dl_params']['batch_size'] = 4
 # change momentum
 #model_params['training']['opt_params']['momentum'] = 0.98
@@ -137,7 +137,7 @@ model_params["prediction"] = {
 #model_params['training']['opt_params']['weight_decay'] = wd
 model_params['training']['prg_trn_sizes'] =  [[ 20 ,256, 256],[ 22, 304 ,304],[ 30 ,384, 384],[ 32 ,432, 432]]
 model_params['training']['prg_trn_resize_on_the_fly'] = False
-model_params['training']['num_epochs'] = 5
+model_params['training']['num_epochs'] = 10
 
 # creat model object.
 # this object holds all objects that define a deep neural network model
