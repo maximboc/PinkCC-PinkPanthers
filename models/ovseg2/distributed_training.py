@@ -61,6 +61,10 @@ def train_worker(rank, world_size, model_params, data_name, model_name, preproce
         # Move model to correct GPU
         device = torch.device(f'cuda:{rank}')
         model.network = model.network.to(device)
+        print(f"Rank {rank}: Converting BatchNorm to SyncBatchNorm...")
+        
+        # Convert BatchNorm layers to SyncBatchNorm for distributed training
+        model.network = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model.network)
         
         print(f"Rank {rank}: Wrapping with DDP...")
         
