@@ -231,10 +231,6 @@ def evaluate_segmentation_model(im,
 
 
 
-
-
-
-
     path_priority = os.path.join(project_root, 'data', 'clara_models', 'pinkcc', 'preprocessing_parameters.pkl')
 
 
