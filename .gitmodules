@@ -1,3 +1,0 @@
-[submodule "models/ovseg"]
-	path = models/ovseg
-	url = https://github.com/ErwinGoneMad/ovseg.git

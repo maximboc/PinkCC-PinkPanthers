@@ -1,16 +1,29 @@
-## PINKCC Challenge - PinkPanthers Team Repository
+## PINKCC Inference
 
-# Workflow
-- A `main` branch
-- A `dev` branch
-- A branch for each model implemented
+Initial Setup 
 
-# Project Structure 
-- `models/` : contains each model implemented (each subdirectory is a studied model)
-- `utils/` : functions that everyone can use
-- `data/` : directory containing the dataset 
+```bash
+export OV_DATA_BASE="path/to/data"
+```
+path/to/data : Path to the directory in which we find raw_data/
 
-# Rules
-- Make branches on top of the `dev` branch
-- Merge on `dev` when the model is "finished"
-- **Never EVER merge on main** except if it was approved by tests made on GPU
+```bash
+pip install .
+```
+
+File architecture example
+```
+/path/to/data/
+    └── raw_data/
+        └── DATASET/
+            ├── image_001.nii.gz
+            ├── image_002.nii.gz
+            ├── ...
+            ovseg_predictions/
+    └── clara_models/
+```
+
+Run this command for inference
+```bash
+ovseg_inference /path/to/DATASET/ --models pinkcc
+```
