@@ -12,7 +12,7 @@ setup(
     package_dir={'': 'src'},
     # Needed for dependencies
     install_requires=[
-
+            "torch>=1.7.0",
             "tqdm",
             "scikit-image>=0.14",
             "scipy",
