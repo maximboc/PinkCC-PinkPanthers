@@ -4,7 +4,7 @@ Initial Setup
 
 
 ```bash
-pip install .
+pip install -e .
 ```
 
 File architecture example
