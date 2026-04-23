@@ -1,8 +1,9 @@
 # PINKCC Inference
 
-> An extension of the ovseg deep learning framework for automated segmentation of ovarian cancer with peritoneal carcinomatosis on CT scans, developed during the **PINKCC Challenge 2025**.
+An extension of the ovseg deep learning framework for automated segmentation of ovarian cancer with peritoneal carcinomatosis on CT scans, developed during the **PINKCC Challenge 2025**.
 
-> [!WARNING] **Research Use Only.** This software is intended for research purposes only and has not been validated for clinical use. It must not be used for clinical diagnosis, treatment planning, or any other medical decision-making. The authors and contributors assume no responsibility for any clinical or diagnostic decisions made using this tool.
+> [!CAUTION]
+> **Research Use Only.** This software is intended for research purposes only and has not been validated for clinical use. It must not be used for clinical diagnosis, treatment planning, or any other medical decision-making. The authors and contributors assume no responsibility for any clinical or diagnostic decisions made using this tool.
 
 ---
 
